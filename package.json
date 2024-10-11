@@ -1,7 +1,7 @@
 {
-  "name": "antsomirnsdk",
-  "version": "0.1.0",
-  "description": "Antsomi Reat Native SDK",
+  "name": "@antsomicorp/antsomirnsdk",
+  "version": "0.1.2",
+  "description": "Antsomi React Native SDK",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
   "types": "lib/typescript/src/index.d.ts",
@@ -134,7 +134,8 @@
           "trailingComma": "es5",
           "useTabs": false
         }
-      ]
+      ],
+      "no-unused-vars": "off"
     }
   },
   "eslintIgnore": [

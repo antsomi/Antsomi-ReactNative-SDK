@@ -16,7 +16,7 @@ public class AntsomirnsdkPackage implements ReactPackage {
   @Override
   public List<NativeModule> createNativeModules(@NonNull ReactApplicationContext reactContext) {
     List<NativeModule> modules = new ArrayList<>();
-    modules.add(new AntsomirnsdkModule(reactContext));
+    modules.add(new Antsomi(reactContext));
     return modules;
   }
 

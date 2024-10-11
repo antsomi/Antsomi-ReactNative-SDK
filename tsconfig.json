@@ -2,7 +2,7 @@
   "compilerOptions": {
     "rootDir": ".",
     "paths": {
-      "antsomirnsdk": ["./src/index"]
+      "@antsomicorp/antsomirnsdk": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
@@ -17,7 +17,7 @@
     "noImplicitUseStrict": false,
     "noStrictGenericChecks": false,
     "noUncheckedIndexedAccess": true,
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "noUnusedParameters": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,

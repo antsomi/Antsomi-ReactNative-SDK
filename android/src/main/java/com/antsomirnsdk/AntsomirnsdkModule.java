@@ -14,6 +14,7 @@ public class AntsomirnsdkModule extends ReactContextBaseJavaModule {
 
   public AntsomirnsdkModule(ReactApplicationContext reactContext) {
     super(reactContext);
+    
   }
 
   @Override
