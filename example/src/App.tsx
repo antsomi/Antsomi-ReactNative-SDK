@@ -15,8 +15,8 @@ import Notification from './screens/Notification';
 const Tab = createBottomTabNavigator();
 
 AntsomiRnSDK.config(
-  '564890637',
-  '564993464',
+  '561236459',
+  '565024989',
   'fbdfb60d-7ff6-41cd-8203-3ce029c51764',
   'group.khanhhv.test'
 );

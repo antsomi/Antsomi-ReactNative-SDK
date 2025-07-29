@@ -22,6 +22,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@antsomicorp/antsomirnsdk@file:../::locator=antsomirnsdk-example%40workspace%3Aexample":
+  version: 0.2.0
+  resolution: "@antsomicorp/antsomirnsdk@file:../#../::hash=87f8b4&locator=antsomirnsdk-example%40workspace%3Aexample"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 57b1bc154c4d0a6180ff2fe71517548f5b39ba522560a5ecb02d21da08f94fe8fd57ffafb651f4b03cde7b045063a1738ca7a8d086f9bb332d860eb6f028452b
+  languageName: node
+  linkType: hard
+
 "@antsomicorp/antsomirnsdk@workspace:.":
   version: 0.0.0-use.local
   resolution: "@antsomicorp/antsomirnsdk@workspace:."
@@ -3941,6 +3951,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "antsomirnsdk-example@workspace:example"
   dependencies:
+    "@antsomicorp/antsomirnsdk": "file:../"
     "@babel/core": ^7.20.0
     "@babel/preset-env": ^7.20.0
     "@babel/runtime": ^7.20.0
