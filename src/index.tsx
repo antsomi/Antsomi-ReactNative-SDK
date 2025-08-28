@@ -264,11 +264,25 @@ export default class RnAntsomiSdk {
 
   static async getMediaJson(event: CDPEvent, storyId: string) {
     return await new Promise(async (resolve, _) => {
-      await AntsomiSDK.getMediaJson(event, storyId);
-
-      eventEmitter.addListener(GET_MEDIA_JSON, (message: string) => {
+      if (Platform.OS === 'ios') {
+        const message = await AntsomiSDK.getMediaJson(event, storyId);
         resolve(message);
-      });
+      } else {
+        await AntsomiSDK.getMediaJson(event, storyId);
+
+        eventEmitter.addListener(GET_MEDIA_JSON, (messages) => {
+          if (messages && typeof messages === 'string') {
+            try {
+              const data = JSON.parse(messages);
+              resolve(data);
+            } catch (error) {
+              resolve(null);
+            }
+          } else {
+            resolve(null);
+          }
+        });
+      }
     });
   }
 }

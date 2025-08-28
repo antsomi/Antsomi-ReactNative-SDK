@@ -9,37 +9,46 @@ export default function HomeScreen() {
   }, []);
 
   const exampleEvent = async () => {
-    await AntsomiRnSDK.trackScreen('Home', 'Home', 'home');
-
-    await AntsomiRnSDK.requestNotificationPermission();
-
-    const pushId = await AntsomiRnSDK.getPushUid();
-    const uid = await AntsomiRnSDK.getUid();
-    const customer_id = await AntsomiRnSDK.getCustomerId();
-
-    console.log('pushId', pushId);
-    console.log('uid', uid);
-    console.log('customer_id', customer_id);
-
-    await AntsomiRnSDK.resetCustomer();
-
-    const customer_id_after = await AntsomiRnSDK.getCustomerId();
-    console.log('customer_id_after', customer_id_after);
-
-    const event: CDPEvent = {
-      en: 'screen_view',
-      customerProps: {
-        customer_id: 'kkkakakk22123',
-        name: 'kakakak',
-        phone: '221231232',
-      },
+    console.log('Example event triggered');
+    const eventJson: CDPEvent = {
+      en: 'view_pageview',
       eventProps: {
-        page_name: 'home',
+        location_url: 'https://example.com?demojson',
       },
     };
 
-    const json = await AntsomiRnSDK.getMediaJson(event, '');
-    console.log('json', json);
+    const json = await AntsomiRnSDK.getMediaJson(eventJson, '');
+    const { status, webContents } = json as {
+      status: boolean;
+      webContents?: any;
+    };
+
+    if (status) {
+      const products = webContents?.contents?.products || [];
+
+      const globalTracking = webContents?.contents?.globalTracking || [];
+
+      // tracking event viewable and impression
+      const { view, impression } = globalTracking;
+
+      for (const product of products) {
+        console.log('Product ID:', product.id);
+        console.log('Product Name:', product.name);
+        console.log('Product Price:', product.price);
+        console.log('Original Price:', product.original_price);
+      }
+
+      if (view && impression) {
+        await AntsomiRnSDK.handleTrackingUrl(view);
+        await AntsomiRnSDK.handleTrackingUrl(impression);
+      }
+
+      AntsomiRnSDK.handleDeeplinkURL('https://antsomi.com?utm_search=abc');
+
+      console.log('pushId', await AntsomiRnSDK.getPushUid());
+
+      // handle click
+    }
   };
 
   return (

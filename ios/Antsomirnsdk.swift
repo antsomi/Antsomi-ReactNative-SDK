@@ -34,17 +34,19 @@ class AntsomiSDK: NSObject, RCTBridgeModule {
 
     @objc func config(_ portalId: String, propsId: String, applicationId: String, appGroupId: String, resolver: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
         let config = Antsomi.Configuration(portalId: portalId, propsId: propsId, appGroupId: appGroupId, applicationId: applicationId)
-       
-        Antsomi.shared.activate(with: config)
-        Antsomi.shared.isDelivery = true
-        
-        Antsomi.shared.logger = { str in
-            DispatchQueue.main.async {
-                NSLog("<ANTSOMI> \(str)")
+
+        DispatchQueue.main.async {
+            Antsomi.shared.activate(with: config)
+            Antsomi.shared.isDelivery = true
+            
+            Antsomi.shared.logger = { str in
+                DispatchQueue.main.async {
+                    NSLog("<ANTSOMI> \(str)")
+                }
             }
+            
+            Antsomi.shared.trackAppLaunch();
         }
-        
-        Antsomi.shared.trackAppLaunch();
         
     }
     
@@ -61,7 +63,7 @@ class AntsomiSDK: NSObject, RCTBridgeModule {
     }
 
     @objc
-    func setCustomerId(_ customerId: String, resolve:RCTPromiseResolveBlock,rejecter:RCTPromiseRejectBlock) {
+    func setCustomerId(_ customerId: String, resolver resolve:RCTPromiseResolveBlock,rejecter reject:RCTPromiseRejectBlock) {
         Antsomi.shared.setCustomerProperties(customerId: customerId)
         resolve(true)
     }
@@ -225,21 +227,23 @@ class AntsomiSDK: NSObject, RCTBridgeModule {
     }
     
     @objc
-    func setUid(_ uid: String, resolve:RCTPromiseResolveBlock,rejecter:RCTPromiseRejectBlock) {
+    func setUid(_ uid: String, resolver resolve:RCTPromiseResolveBlock,rejecter reject:RCTPromiseRejectBlock) {
       Antsomi.shared.setUid(uid: uid)
       resolve(true)
     }
     
     
     @objc
-    func handleDeepLink(_ link: String, resolve:RCTPromiseResolveBlock,rejecter:RCTPromiseRejectBlock) {
+    func handleDeepLink(_ link: String, resolver resolve: @escaping RCTPromiseResolveBlock,
+                       rejecter reject: @escaping RCTPromiseRejectBlock) {
       
         Antsomi.shared.handleDeeplinkURL(URL(string: link)!)
         resolve(true)
     }
   
   @objc
-  func handleTrackingUrl(_ trackingLink: String, resolve:RCTPromiseResolveBlock,rejecter:RCTPromiseRejectBlock) {
+  func handleTrackingUrl(_ trackingLink: String, resolver resolve: @escaping RCTPromiseResolveBlock,
+                       rejecter reject: @escaping RCTPromiseRejectBlock) {
     
     func completion() -> Void {}
     Antsomi.shared.handleTrackingURL(URL(string: trackingLink)!, completion: completion);

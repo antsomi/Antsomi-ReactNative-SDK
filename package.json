@@ -1,6 +1,6 @@
 {
   "name": "@antsomicorp/antsomirnsdk",
-  "version": "0.3.0",
+  "version": "0.13.0",
   "description": "Antsomi React Native SDK",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -28,6 +28,7 @@
   "scripts": {
     "example": "yarn workspace antsomirnsdk-example",
     "test": "jest",
+    "build": "tsc",
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib",

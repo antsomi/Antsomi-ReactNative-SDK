@@ -15,8 +15,8 @@ import Notification from './screens/Notification';
 const Tab = createBottomTabNavigator();
 
 AntsomiRnSDK.config(
-  '561236459',
-  '565024989',
+  '564892334',
+  '565018498',
   'fbdfb60d-7ff6-41cd-8203-3ce029c51764',
   'group.khanhhv.test'
 );
@@ -28,6 +28,8 @@ AntsomiRnSDK.setCallbackNewMessage((messsage: AppInboxItem) => {
 });
 
 AntsomiRnSDK.newMessageReceived();
+
+AntsomiRnSDK.requestNotificationPermission();
 
 export default function App() {
   return (

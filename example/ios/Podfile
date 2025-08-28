@@ -37,6 +37,7 @@ target 'AntsomirnsdkExample' do
   use_react_native!(:path => config_pod[:reactNativePath])
 
   pod 'antsomirnsdk', :path => '../..'
+  # pod 'AntsomiFramework'
   # Enables Flipper.
   #
   # Note that if you have use_frameworks! enabled, Flipper will not work and
@@ -57,3 +58,8 @@ target 'AntsomirnsdkExample' do
     end
   end
 end
+
+# target 'NotificationService' do
+#  #use_frameworks!
+#   pod 'AntsomiFramework'
+# end

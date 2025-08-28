@@ -34,9 +34,6 @@ RCT_EXTERN_METHOD(getPropsId:(RCTPromiseResolveBlock *)resolve
 RCT_EXTERN_METHOD(getPortalId:(RCTPromiseResolveBlock *)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 
-RCT_EXTERN_METHOD(withResolver:(RCTPromiseResolveBlock *)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject)
-
 RCT_EXTERN_METHOD(appInboxInit: (NSString *)destinationId
                   audienceType:(NSString *)audienceType
                   resolver:(RCTPromiseResolveBlock)resolve
