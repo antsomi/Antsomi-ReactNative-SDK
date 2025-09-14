@@ -1,6 +1,6 @@
 {
   "name": "@antsomicorp/antsomirnsdk",
-  "version": "0.13.0",
+  "version": "0.24.0",
   "description": "Antsomi React Native SDK",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",

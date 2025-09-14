@@ -1,4 +1,9 @@
-import { NativeModules, NativeEventEmitter, Platform } from 'react-native';
+import {
+  NativeModules,
+  NativeEventEmitter,
+  Platform,
+  Linking,
+} from 'react-native';
 
 import {
   GET_MESSAGE_APP_INBOX_LIST,
@@ -12,6 +17,8 @@ import {
   GET_CUSTOMER_ID,
   GET_PROPS_ID,
   GET_PORTAL_ID,
+  PENDING_LINK,
+  OPENED_NOTIFICATION
 } from './events/events';
 import { isNativeModuleLoaded } from './events/helpers';
 
@@ -35,7 +42,9 @@ export default class RnAntsomiSdk {
       return;
     }
 
-    return AntsomiSDK.config(portalId, propsId, appId, appGroupId);
+    AntsomiSDK.config(portalId, propsId, appId, appGroupId);
+
+    return;
   }
 
   static async appInboxInit(
@@ -283,6 +292,40 @@ export default class RnAntsomiSdk {
           }
         });
       }
+    });
+  }
+
+  // Deeplink APIs
+  static async getPendingLink(): Promise<string | null> {
+    try {
+      const link = await AntsomiSDK.getPendingDeeplink();
+      return link ?? null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  static onPendingLink(callback: (link: string) => void) {
+    iosEventEmitter.addListener(PENDING_LINK, (link: string) => {
+      if (typeof link === 'string' && link.length > 0) {
+        callback(link);
+      }
+    });
+  }
+
+  // Notification APIs
+  static async getPendingNotification(): Promise<any | null> {
+    try {
+      const info = await AntsomiSDK.getPendingNotification();
+      return info ?? null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  static onOpenedNotification(callback: (info: any) => void) {
+    iosEventEmitter.addListener(OPENED_NOTIFICATION, (info: any) => {
+      callback(info);
     });
   }
 }

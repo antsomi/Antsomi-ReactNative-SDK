@@ -89,6 +89,12 @@ RCT_EXTERN_METHOD(handleTrackingUrl: (NSString *)trackingLink
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(getPendingDeeplink: (RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(getPendingNotification: (RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+
 RCT_EXTERN_METHOD(getMediaJson: (NSDictionary *)event
                   storyId:(NSString *)storyId
                   resolver:(RCTPromiseResolveBlock)resolve

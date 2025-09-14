@@ -32,6 +32,8 @@ class EventEmitter {
 
         // Append all events here
         allEventNames.append("ANTSOMI-receivce-new-message-inbox")
+        allEventNames.append("ANTSOMI-deeplink")
+        allEventNames.append("ANTSOMI-notification")
         
         return allEventNames
     }()

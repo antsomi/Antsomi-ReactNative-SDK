@@ -22,3 +22,9 @@ export const GET_CUSTOMER_ID = 'ANTSOMI-get-customer-id';
 export const GET_PROPS_ID = 'ANTSOMI-get-props-id';
 
 export const GET_PORTAL_ID = 'ANTSOMI-get-portal-id';
+
+// deeplink
+export const PENDING_LINK = 'ANTSOMI-pending-link';
+
+// notification
+export const OPENED_NOTIFICATION = 'ANTSOMI-opened-notification';

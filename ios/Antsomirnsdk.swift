@@ -15,6 +15,8 @@ class AntsomiSDK: NSObject, RCTBridgeModule {
 
     
     var eventReceivedMessage = "ANTSOMI-receivce-new-message-inbox"
+    var eventPendingLink = "ANTSOMI-pending-link"
+    var eventNotification = "ANTSOMI-notification"
     
     var getMessageResolver: RCTPromiseResolveBlock?
     var getLabelResolver: RCTPromiseResolveBlock?
@@ -28,6 +30,9 @@ class AntsomiSDK: NSObject, RCTBridgeModule {
             return true
         }
 
+    private var pendingDeepLink: String?
+    private var pendingNotification: [String: Any]?
+
     override init() {
         super.init();
     }
@@ -38,6 +43,23 @@ class AntsomiSDK: NSObject, RCTBridgeModule {
         DispatchQueue.main.async {
             Antsomi.shared.activate(with: config)
             Antsomi.shared.isDelivery = true
+
+            Antsomi.shared.setDeeplinkCallback({ link in
+                // Store pending deeplink for cold start
+                self.pendingDeepLink = link
+                // Try to emit immediately if the bridge is ready
+                ReactNativeEventEmitter.shared?.emitEvent(self.eventDeepLink, data: link)
+            })
+
+            Antsomi.shared.setNotificationCallback { userInfo in
+                // Cache pending notification in case RN bridge not ready
+                if let dict = userInfo as? [String: Any] {
+                    self.pendingNotification = dict
+                    ReactNativeEventEmitter.shared?.emitEvent(self.eventNotification, data: dict)
+                } else {
+                    ReactNativeEventEmitter.shared?.emitEvent(self.eventNotification, data: [:])
+                }
+            }
             
             Antsomi.shared.logger = { str in
                 DispatchQueue.main.async {
@@ -239,6 +261,28 @@ class AntsomiSDK: NSObject, RCTBridgeModule {
       
         Antsomi.shared.handleDeeplinkURL(URL(string: link)!)
         resolve(true)
+    }
+
+    @objc
+    func getPendingDeeplink(_ resolve: @escaping RCTPromiseResolveBlock,
+                            rejecter reject: @escaping RCTPromiseRejectBlock) {
+        if let link = self.pendingDeepLink, !link.isEmpty {
+            self.pendingDeepLink = nil
+            resolve(link)
+        } else {
+            resolve(nil)
+        }
+    }
+
+    @objc
+    func getPendingNotification(_ resolve: @escaping RCTPromiseResolveBlock,
+                                rejecter reject: @escaping RCTPromiseRejectBlock) {
+        if let info = self.pendingNotification {
+            self.pendingNotification = nil
+            resolve(info)
+        } else {
+            resolve(nil)
+        }
     }
   
   @objc
