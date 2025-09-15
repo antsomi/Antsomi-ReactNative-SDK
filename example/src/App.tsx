@@ -3,33 +3,11 @@ import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialIcon } from './components/Icon';
-import AntsomiRnSDK, {
-  type AppInboxItem,
-  LogLevel,
-} from '@antsomicorp/antsomirnsdk';
-
 import HomeScreen from './screens/Home';
 import SettingsScreen from './screens/Settings';
 import Notification from './screens/Notification';
 
 const Tab = createBottomTabNavigator();
-
-AntsomiRnSDK.config(
-  '564892334',
-  '565018498',
-  'fbdfb60d-7ff6-41cd-8203-3ce029c51764',
-  'group.khanhhv.test'
-);
-
-AntsomiRnSDK.setLogLevel(LogLevel.DEBUG);
-
-AntsomiRnSDK.setCallbackNewMessage((messsage: AppInboxItem) => {
-  console.log('Messsage', messsage);
-});
-
-AntsomiRnSDK.newMessageReceived();
-
-AntsomiRnSDK.requestNotificationPermission();
 
 export default function App() {
   return (

@@ -18,7 +18,7 @@ import {
   GET_PROPS_ID,
   GET_PORTAL_ID,
   PENDING_LINK,
-  OPENED_NOTIFICATION
+  OPENED_NOTIFICATION,
 } from './events/events';
 import { isNativeModuleLoaded } from './events/helpers';
 
@@ -305,28 +305,55 @@ export default class RnAntsomiSdk {
     }
   }
 
-  static onPendingLink(callback: (link: string) => void) {
-    iosEventEmitter.addListener(PENDING_LINK, (link: string) => {
-      if (typeof link === 'string' && link.length > 0) {
-        callback(link);
-      }
-    });
+  static async onPendingLink(callback: (link: string) => void) {
+    if (Platform.OS === 'ios') {
+      iosEventEmitter.addListener(PENDING_LINK, (link: string) => {
+        if (typeof link === 'string' && link.length > 0) {
+          callback(link);
+        }
+      });
+    } else {
+      const sub = eventEmitter.addListener(PENDING_LINK, (info) => {
+        sub.remove();
+        if (info && info.url) {
+          callback(info.url);
+        }
+      });
+    }
   }
 
   // Notification APIs
   static async getPendingNotification(): Promise<any | null> {
-    try {
-      const info = await AntsomiSDK.getPendingNotification();
-      return info ?? null;
-    } catch (e) {
-      return null;
+    if (Platform.OS === 'ios') {
+      try {
+        const info = await AntsomiSDK.getPendingNotification();
+        return info ?? null;
+      } catch (e) {
+        return null;
+      }
+    } else {
+      AntsomiSDK.getPendingNotification();
+      // return await new Promise(async (resolve, _) => {
+      //   const sub = eventEmitter.addListener(OPENED_NOTIFICATION, (info) => {
+      //     sub.remove();
+      //     resolve(info ?? null);
+      //   });
+      // });
     }
   }
 
   static onOpenedNotification(callback: (info: any) => void) {
-    iosEventEmitter.addListener(OPENED_NOTIFICATION, (info: any) => {
-      callback(info);
-    });
+    if (Platform.OS === 'ios') {
+      iosEventEmitter.addListener(OPENED_NOTIFICATION, (info: any) =>
+        callback(info)
+      );
+    } else {
+      eventEmitter.addListener(OPENED_NOTIFICATION, (info: any) =>
+        callback(info)
+      );
+    }
+
+    RnAntsomiSdk.getPendingNotification();
   }
 }
 

@@ -51,7 +51,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Antsomi extends ReactContextBaseJavaModule {
+import android.content.Intent;
+import com.facebook.react.bridge.ActivityEventListener;
+
+public class Antsomi extends ReactContextBaseJavaModule implements ActivityEventListener {
   public static final String NAME = "AntsomiSDK";
   private final String GRANTED = "granted";
   private final String DENIED = "denied";
@@ -69,11 +72,14 @@ public class Antsomi extends ReactContextBaseJavaModule {
   public static final String GET_CUSTOMER_ID = "ANTSOMI-get-customer-id";
   public static final String GET_PROPS_ID = "ANTSOMI-get-props-id";
   public static final String GET_PORTAL_ID = "ANTSOMI-get-portal-id";
+  public static final String ANTSOMI_OPENED_NOTIFICATION = "ANTSOMI-opened-notification";
+  public static final String ANTSOMI_PENDING_LINK = "ANTSOMI-pending-link";
 
   public static final String GET_DEVICE_ID = "ANTSOMI-get-device-id";
 
   private ReactContext mReactContext;
   private ReactApplicationContext mReactApplicationContext;
+  private WritableMap mPendingNotification; // cache opened notification for cold start
 
   private WritableMap getLegacyNotificationsResponse(String disabledStatus) {
     final boolean enabled = NotificationManagerCompat
@@ -93,6 +99,9 @@ public class Antsomi extends ReactContextBaseJavaModule {
 
     mReactContext = reactContext;
     mReactApplicationContext = reactContext;
+
+    // Register to receive Activity events (including onNewIntent)
+    reactContext.addActivityEventListener(this);
   }
 
   private void sendEvent(String eventName, Object params) {
@@ -101,10 +110,43 @@ public class Antsomi extends ReactContextBaseJavaModule {
         .emit(eventName, params);
   }
 
+  private WritableMap cloneMap(ReadableMap src) {
+    if (src == null) return null;
+    WritableMap copy = Arguments.createMap();
+    copy.merge(src);
+    return copy;
+  }
+
   @NonNull
   @Override
   public String getName() {
     return NAME;
+  }
+
+  // ActivityEventListener: keep Activity intent updated so apps don't need to override onNewIntent
+  @Override
+  public void onNewIntent(Intent intent) {
+    Activity activity = getCurrentActivity();
+    if (activity != null) {
+      activity.setIntent(intent);
+    }
+  }
+
+  // Unused but required by ActivityEventListener
+  @Override
+  public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {
+    // no-op
+  }
+
+  // Required for NativeEventEmitter (RN > 0.65)
+  @ReactMethod
+  public void addListener(String eventName) {
+    // No-op: We don't need to track listeners in Java
+  }
+
+  @ReactMethod
+  public void removeListeners(double count) {
+    // No-op
   }
 
   @ReactMethod
@@ -128,6 +170,19 @@ public class Antsomi extends ReactContextBaseJavaModule {
 
           AntsomiSdk.getInstance().setTrackingScreenView(false);
           AntsomiSdk.getInstance().setIsShowTemplate(true);
+
+          AntsomiSdk.setOpenedNotificationHandler(null, result -> {
+            Log.d("NotificationOpened", "Notification opened: " + result.toString());
+            WritableMap payload = convertBundleToWritableMap(result);
+            // If React bridge is not ready (cold start), cache and wait for JS to pull it.
+            if (mReactContext == null || !mReactContext.hasActiveCatalystInstance()) {
+              mPendingNotification = payload;
+              return;
+            }
+            // Warm start: emit immediately and clear pending
+            sendEvent(ANTSOMI_OPENED_NOTIFICATION, payload);
+            mPendingNotification = null;
+          });
 
         } catch (Exception e) {
           throw new RuntimeException(e);
@@ -431,7 +486,7 @@ public class Antsomi extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void handleDeeplink(String url) {
+  public void handleDeeplinkURL(String url) {
     OSUtils.runOnMainUIThread(new Runnable() {
       @Override
       public void run() {
@@ -448,6 +503,51 @@ public class Antsomi extends ReactContextBaseJavaModule {
   @ReactMethod
   public void handleTrackingUrl(String trackingUrl) {
     AntsomiSdk.handleTrackingUrl(trackingUrl);
+  }
+
+  @ReactMethod
+  public void getPendingNotification() {
+    // If we have a cached payload (likely from cold start), emit once and clear.
+    if (mPendingNotification != null) {
+      WritableMap openedCopy = cloneMap(mPendingNotification);
+      WritableMap linkCopy = cloneMap(mPendingNotification);
+      sendEvent(ANTSOMI_OPENED_NOTIFICATION, openedCopy);
+      sendEvent(ANTSOMI_PENDING_LINK, linkCopy);
+      mPendingNotification = null;
+      // Also clear any residual intent data to avoid re-trigger on resume
+      Activity activity = getCurrentActivity();
+      if (activity != null && activity.getIntent() != null) {
+        try {
+          activity.getIntent().setData(null);
+          activity.getIntent().replaceExtras((Bundle) null);
+        } catch (Exception ignored) {}
+      }
+      return;
+    }
+
+    // Fallback: try to read extras from the launch Intent (cold start)
+    Activity activity = getCurrentActivity();
+    if (activity != null && activity.getIntent() != null && activity.getIntent().getExtras() != null) {
+      WritableMap payload = convertBundleToWritableMap(activity.getIntent().getExtras());
+      // Only emit if there is at least one key
+      if (payload != null && payload.hasKey("android.intent.extra.CHANNEL_ID") == false && payload.toHashMap().size() > 0) {
+        // Cache and emit so JS can pick it up
+        mPendingNotification = cloneMap(payload);
+        WritableMap openedCopy = cloneMap(payload);
+        WritableMap linkCopy = cloneMap(payload);
+        sendEvent(ANTSOMI_OPENED_NOTIFICATION, openedCopy);
+        sendEvent(ANTSOMI_PENDING_LINK, linkCopy);
+        mPendingNotification = null; // clear after emitting once
+        // Clear intent data/extras so subsequent calls don't re-emit
+        try {
+          activity.getIntent().setData(null);
+          activity.getIntent().replaceExtras((Bundle) null);
+        } catch (Exception ignored) {}
+        return;
+      }
+    }
+
+    sendEvent(ANTSOMI_OPENED_NOTIFICATION, null);
   }
 
   @ReactMethod
@@ -637,6 +737,38 @@ public class Antsomi extends ReactContextBaseJavaModule {
     jsonEncode.put("tracking_url", inboxItem.getTrackingUrl());
 
     return jsonEncode;
+  }
+
+  private WritableMap convertBundleToWritableMap(Bundle bundle) {
+    WritableMap map = Arguments.createMap();
+    if (bundle == null) return map;
+
+    for (String key : bundle.keySet()) {
+      Object value = bundle.get(key);
+      if (value == null) {
+        map.putNull(key);
+      } else if (value instanceof String) {
+        map.putString(key, (String) value);
+      } else if (value instanceof Integer) {
+        map.putInt(key, (Integer) value);
+      } else if (value instanceof Double) {
+        map.putDouble(key, (Double) value);
+      } else if (value instanceof Float) {
+        map.putDouble(key, ((Float) value).doubleValue());
+      } else if (value instanceof Boolean) {
+        map.putBoolean(key, (Boolean) value);
+      } else if (value instanceof Bundle) {
+        map.putMap(key, convertBundleToWritableMap((Bundle) value));
+      } else if (value instanceof String[]) {
+        WritableArray arr = Arguments.createArray();
+        for (String v : (String[]) value) arr.pushString(v);
+        map.putArray(key, arr);
+      } else {
+        // Fallback: stringify
+        map.putString(key, String.valueOf(value));
+      }
+    }
+    return map;
   }
 
   private Bundle convertMapToBundle(Map<String, Object> dataMap) {

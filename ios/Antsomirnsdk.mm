@@ -85,6 +85,11 @@ RCT_EXTERN_METHOD(handleDeepLink: (NSString *)link
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 
+// Alias for consistency with Android/JS naming
+RCT_EXTERN_METHOD(handleDeeplinkURL: (NSString *)link
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+
 RCT_EXTERN_METHOD(handleTrackingUrl: (NSString *)trackingLink
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)

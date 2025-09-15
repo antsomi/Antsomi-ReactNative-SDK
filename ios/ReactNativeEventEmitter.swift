@@ -27,8 +27,8 @@ open class ReactNativeEventEmitter: RCTEventEmitter {
     @objc open override func supportedEvents() -> [String] {
         return [
             "ANTSOMI-receivce-new-message-inbox",
-            "ANTSOMI-deeplink",
-            "ANTSOMI-notification"
+            "ANTSOMI-pending-link",
+            "ANTSOMI-opened-notification"
         ]
     }
 

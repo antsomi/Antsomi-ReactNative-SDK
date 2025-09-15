@@ -16,7 +16,7 @@ class AntsomiSDK: NSObject, RCTBridgeModule {
     
     var eventReceivedMessage = "ANTSOMI-receivce-new-message-inbox"
     var eventPendingLink = "ANTSOMI-pending-link"
-    var eventNotification = "ANTSOMI-notification"
+    var eventNotification = "ANTSOMI-opened-notification"
     
     var getMessageResolver: RCTPromiseResolveBlock?
     var getLabelResolver: RCTPromiseResolveBlock?
@@ -48,7 +48,7 @@ class AntsomiSDK: NSObject, RCTBridgeModule {
                 // Store pending deeplink for cold start
                 self.pendingDeepLink = link
                 // Try to emit immediately if the bridge is ready
-                ReactNativeEventEmitter.shared?.emitEvent(self.eventDeepLink, data: link)
+                ReactNativeEventEmitter.shared?.emitEvent(self.eventPendingLink, data: link)
             })
 
             Antsomi.shared.setNotificationCallback { userInfo in
@@ -258,9 +258,15 @@ class AntsomiSDK: NSObject, RCTBridgeModule {
     @objc
     func handleDeepLink(_ link: String, resolver resolve: @escaping RCTPromiseResolveBlock,
                        rejecter reject: @escaping RCTPromiseRejectBlock) {
-      
         Antsomi.shared.handleDeeplinkURL(URL(string: link)!)
         resolve(true)
+    }
+
+    // Alias to align with Android method name used in JS
+    @objc(handleDeeplinkURL:resolver:rejecter:)
+    func handleDeeplinkURL(_ link: String, resolver resolve: @escaping RCTPromiseResolveBlock,
+                           rejecter reject: @escaping RCTPromiseRejectBlock) {
+        handleDeepLink(link, resolver: resolve, rejecter: reject)
     }
 
     @objc
