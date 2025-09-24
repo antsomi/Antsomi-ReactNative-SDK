@@ -1,8 +1,5 @@
 package com.antsomirnsdk;
 
-import static com.antsomi.Utils.convertHashMapToJson;
-
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
@@ -10,22 +7,17 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.antsomi.APICallback;
 import com.antsomi.AntsomiSdk;
-import com.antsomi.AppInbox.AppInbox;
 import com.antsomi.AppInbox.Catalog;
 import com.antsomi.AppInbox.MessageInbox;
 import com.antsomi.AppInbox.OnNewMessageCallback;
 import com.antsomi.MediaJson;
 import com.antsomi.OSUtils;
 import com.antsomi.AntsomiTrackEvent;
-import com.antsomi.PermissionUtils;
 import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -38,8 +30,6 @@ import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.ReadableNativeMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
-import com.facebook.react.modules.core.PermissionAwareActivity;
-import com.facebook.react.modules.core.PermissionListener;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -497,7 +487,14 @@ public class Antsomi extends ReactContextBaseJavaModule implements ActivityEvent
 
   @ReactMethod
   public void getDeviceId() {
-    sendEvent(GET_DEVICE_ID, AntsomiSdk.getDeviceStringId());
+    String deviceId = AntsomiSdk.getDeviceStringId();
+
+    if (!TextUtils.isEmpty(deviceId)) {
+      String id = com.google.gson.JsonParser.parseString(deviceId).getAsString();
+      sendEvent(GET_DEVICE_ID, id);
+    } else {
+      sendEvent(GET_DEVICE_ID, "");
+    }
   }
 
   @ReactMethod
@@ -586,12 +583,28 @@ public class Antsomi extends ReactContextBaseJavaModule implements ActivityEvent
 
   @ReactMethod
   public void getPushUid() {
-    sendEvent(GET_PUSH_UID, AntsomiSdk.getInstance().getUidPush());
+
+    String uid = AntsomiSdk.getInstance().getUidPush();
+
+    if (!TextUtils.isEmpty(uid)) {
+      String id = com.google.gson.JsonParser.parseString(uid).getAsString();
+      sendEvent(GET_PUSH_UID, id);
+    } else {
+      sendEvent(GET_PUSH_UID, "");
+    }
+
   }
 
   @ReactMethod
   public void getUid() {
-    sendEvent(GET_UID, AntsomiSdk.getInstance().getUid());
+    String uid = AntsomiSdk.getInstance().getUid();
+
+    if (!TextUtils.isEmpty(uid)) {
+      String id = com.google.gson.JsonParser.parseString(uid).getAsString();
+      sendEvent(GET_UID, id);
+    } else {
+      sendEvent(GET_UID, "");
+    }
   }
 
   @ReactMethod
