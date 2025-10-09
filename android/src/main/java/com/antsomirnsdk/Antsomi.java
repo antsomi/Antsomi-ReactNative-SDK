@@ -24,6 +24,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.ReadableType;
 import com.facebook.react.bridge.WritableArray;
@@ -56,7 +57,6 @@ public class Antsomi extends ReactContextBaseJavaModule implements ActivityEvent
   public static final String GET_DETAIL_MESSAGE_INBOX = "ANTSOMI-get-detail-message-inbox";
   public static final String GET_ALL_LABELS_INBOX = "ANTSOMI-get-all-labels-inbox";
   public static final String RECEIVE_NEW_MESSAGE_INBOX = "ANTSOMI-receive-new-message-inbox";
-  public static final String GET_MEDIA_JSON = "ANTSOMI-get-media-json";
   public static final String GET_UID = "ANTSOMI-get-uid";
   public static final String GET_PUSH_UID = "ANTSOMI-get-push-uid";
   public static final String GET_CUSTOMER_ID = "ANTSOMI-get-customer-id";
@@ -618,12 +618,13 @@ public class Antsomi extends ReactContextBaseJavaModule implements ActivityEvent
   }
 
   @ReactMethod
-  public void getMediaJson(ReadableMap event, String storyId) {
+  public void getMediaJson(ReadableMap event, String storyId, Promise promise) {
     if (event != null) {
       String eventName = event.getString("en");
 
       if (eventName == null) {
         Log.w("EventName", "Event name cannot be null");
+        promise.reject("invalid_event", "Event name cannot be null");
         return;
       }
       AntsomiTrackEvent atEvent = new AntsomiTrackEvent(eventName);
@@ -663,28 +664,30 @@ public class Antsomi extends ReactContextBaseJavaModule implements ActivityEvent
         AntsomiSdk.getInstance().getMediaJson(atEvent, storyId, new APICallback<MediaJson>() {
           @Override
           public void onResponse(MediaJson response) {
-            sendEvent(GET_MEDIA_JSON, toJsonStringMediaJson(response));
+            promise.resolve(toJsonStringMediaJson(response));
           }
 
           @Override
           public void onFailure(Throwable t) {
-
+            promise.reject("get_media_json_failed", t);
           }
         });
       } else {
         AntsomiSdk.getInstance().getMediaJson(atEvent, new APICallback<MediaJson>() {
           @Override
           public void onResponse(MediaJson response) {
-            sendEvent(GET_MEDIA_JSON, toJsonStringMediaJson(response));
+            promise.resolve(toJsonStringMediaJson(response));
           }
 
           @Override
           public void onFailure(Throwable t) {
-
+            promise.reject("get_media_json_failed", t);
           }
         });
       }
 
+    } else {
+      promise.reject("invalid_event", "Event payload cannot be null");
     }
   }
 

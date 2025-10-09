@@ -11,7 +11,6 @@ import {
   GET_ALL_LABELS_INBOX,
   GET_DETAIL_MESSAGE_INBOX,
   RECEIVE_NEW_MESSAGE_INBOX,
-  GET_MEDIA_JSON,
   GET_UID,
   GET_PUSH_UID,
   GET_CUSTOMER_ID,
@@ -277,20 +276,20 @@ export default class RnAntsomiSdk {
         const message = await AntsomiSDK.getMediaJson(event, storyId);
         resolve(message);
       } else {
-        await AntsomiSDK.getMediaJson(event, storyId);
-
-        eventEmitter.addListener(GET_MEDIA_JSON, (messages) => {
-          if (messages && typeof messages === 'string') {
+        try {
+          const message = await AntsomiSDK.getMediaJson(event, storyId);
+          if (typeof message === 'string') {
             try {
-              const data = JSON.parse(messages);
-              resolve(data);
+              resolve(JSON.parse(message));
             } catch (error) {
               resolve(null);
             }
           } else {
-            resolve(null);
+            resolve(message);
           }
-        });
+        } catch (e) {
+          resolve(null);
+        }
       }
     });
   }

@@ -20,7 +20,6 @@ class AntsomiSDK: NSObject, RCTBridgeModule {
     
     var getMessageResolver: RCTPromiseResolveBlock?
     var getLabelResolver: RCTPromiseResolveBlock?
-    var getMediaJsonResolver: RCTPromiseResolveBlock?
     
     static func moduleName() -> String! {
             return "AntsomiSDK"
@@ -304,7 +303,7 @@ class AntsomiSDK: NSObject, RCTBridgeModule {
   
   @objc
   func getMediaJson(_ event: [String: Any], storyId: String?, resolver: @escaping RCTPromiseResolveBlock,rejecter reject: @escaping RCTPromiseRejectBlock) {
-      self.getMediaJsonResolver = resolver
+      let resolve = resolver
       var eventCDP = CDPEvent()
       if let eventName =  event["en"] as? String{
           eventCDP.setEventName(eventName: eventName)
@@ -333,13 +332,13 @@ class AntsomiSDK: NSObject, RCTBridgeModule {
           }
       }
     
-      if (storyId != nil && storyId != "") {
-          Antsomi.shared.getMediaJson(event: eventCDP, storyId: storyId!) { mediaJson in
-            self.getMediaJsonResolver!(mediaJson)
+      if let storyId = storyId, !storyId.isEmpty {
+          Antsomi.shared.getMediaJson(event: eventCDP, storyId: storyId) { mediaJson in
+            resolve(mediaJson)
           }
       } else {
           Antsomi.shared.getMediaJson(event: eventCDP) { mediaJson in
-            self.getMediaJsonResolver!(mediaJson)
+            resolve(mediaJson)
           }
       }
   }

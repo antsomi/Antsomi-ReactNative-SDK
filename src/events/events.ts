@@ -11,8 +11,6 @@ export const GET_DETAIL_MESSAGE_INBOX = 'ANTSOMI-get-detail-message-inbox';
 
 export const RECEIVE_NEW_MESSAGE_INBOX = 'ANTSOMI-receivce-new-message-inbox';
 
-export const GET_MEDIA_JSON = 'ANTSOMI-get-media-json';
-
 export const GET_UID = 'ANTSOMI-get-uid';
 
 export const GET_PUSH_UID = 'ANTSOMI-get-push-uid';
