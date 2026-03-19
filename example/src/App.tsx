@@ -6,6 +6,16 @@ import { MaterialIcon } from './components/Icon';
 import HomeScreen from './screens/Home';
 import SettingsScreen from './screens/Settings';
 import Notification from './screens/Notification';
+import GamificationScreen from './screens/Gamification';
+import AntsomiRnSDK, { LogLevel } from '@antsomicorp/antsomirnsdk';
+
+AntsomiRnSDK.config(
+  '564890637',
+  '564993464',
+  'fbdfb60d-7ff6-41cd-8203-3ce029c51764',
+  'group.khanhhv.test'
+);
+AntsomiRnSDK.setLogLevel(LogLevel.DEBUG);
 
 const Tab = createBottomTabNavigator();
 
@@ -22,6 +32,16 @@ export default function App() {
           }}
           name="Home"
           component={HomeScreen}
+        />
+        <Tab.Screen
+          options={{
+            tabBarLabel: 'Games',
+            tabBarIcon: ({ color }) => (
+              <MaterialIcon name="gamepad-variant" color={color} size="medium" />
+            ),
+          }}
+          name="Games"
+          component={GamificationScreen}
         />
         <Tab.Screen
           options={{
@@ -51,3 +71,4 @@ export default function App() {
     </NavigationContainer>
   );
 }
+

@@ -404,6 +404,81 @@ class AntsomiSDK: NSObject, RCTBridgeModule {
             
             return [:]
         }
+    
+    // MARK: - Gamification APIs
+    
+    @objc
+    func initGamification(_ accessToken: String, env: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+        Antsomi.shared.initGamification(accessToken: accessToken, env: env)
+        resolve(true)
+    }
+    
+    @objc
+    func getListGame(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+        Antsomi.shared.getListGame { result in
+            switch result {
+            case .success(let games):
+                let gamesArray = games.map { self.convertGameToDict($0) }
+                resolve(gamesArray)
+            case .failure(let error):
+                print(error)
+                reject("GAMIFICATION_ERROR", error.localizedDescription, error)
+            }
+        }
+    }
+    
+    @objc
+    func getGameDetail(_ gameId: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+        Antsomi.shared.getGameDetail(gameId: gameId) { result in
+            switch result {
+            case .success(let game):
+                resolve(self.convertGameToDict(game))
+            case .failure(let error):
+                reject("GAMIFICATION_ERROR", error.localizedDescription, error)
+            }
+        }
+    }
+    
+    @objc
+    func getGameByCode(_ gameCode: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+        Antsomi.shared.getGameByCode(gameCode: gameCode) { result in
+            switch result {
+            case .success(let game):
+                resolve(self.convertGameToDict(game))
+            case .failure(let error):
+                reject("GAMIFICATION_ERROR", error.localizedDescription, error)
+            }
+        }
+    }
+    
+    @objc
+    func playGame(_ gameCode: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+        DispatchQueue.main.async {
+            Antsomi.shared.playGame(gameCode: gameCode)
+            resolve(true)
+        }
+    }
+    
+    @objc
+    func playGameById(_ gameId: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+        DispatchQueue.main.async {
+            Antsomi.shared.playGame(gameId: gameId)
+            resolve(true)
+        }
+    }
+    
+    private func convertGameToDict(_ game: GamificationGame) -> [String: Any?] {
+        return [
+            "gameId": game.gameId,
+            "gameCode": game.gameCode,
+            "name": game.name,
+            "iconUrl": game.iconUrl,
+            "templateUrl": game.templateUrl,
+            "status": game.status,
+            "startAt": game.startAt,
+            "endAt": game.endAt
+        ]
+    }
 }
 
 extension AntsomiSDK: AppInboxDelegate {

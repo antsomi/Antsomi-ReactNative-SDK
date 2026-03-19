@@ -16,6 +16,8 @@ import com.antsomi.AppInbox.MessageInbox;
 import com.antsomi.AppInbox.OnNewMessageCallback;
 import com.antsomi.MediaJson;
 import com.antsomi.OSUtils;
+import com.antsomi.GamificationGame;
+import com.antsomi.GamificationResponse;
 import com.antsomi.AntsomiTrackEvent;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -70,6 +72,7 @@ public class Antsomi extends ReactContextBaseJavaModule implements ActivityEvent
   private ReactContext mReactContext;
   private ReactApplicationContext mReactApplicationContext;
   private WritableMap mPendingNotification; // cache opened notification for cold start
+  private volatile boolean mGamificationInitialized = false;
 
   private WritableMap getLegacyNotificationsResponse(String disabledStatus) {
     final boolean enabled = NotificationManagerCompat
@@ -101,7 +104,8 @@ public class Antsomi extends ReactContextBaseJavaModule implements ActivityEvent
   }
 
   private WritableMap cloneMap(ReadableMap src) {
-    if (src == null) return null;
+    if (src == null)
+      return null;
     WritableMap copy = Arguments.createMap();
     copy.merge(src);
     return copy;
@@ -113,10 +117,11 @@ public class Antsomi extends ReactContextBaseJavaModule implements ActivityEvent
     return NAME;
   }
 
-  // ActivityEventListener: keep Activity intent updated so apps don't need to override onNewIntent
+  // ActivityEventListener: keep Activity intent updated so apps don't need to
+  // override onNewIntent
   @Override
   public void onNewIntent(Intent intent) {
-    Activity activity = getCurrentActivity();
+    Activity activity = mReactApplicationContext.getCurrentActivity();
     if (activity != null) {
       activity.setIntent(intent);
     }
@@ -499,7 +504,13 @@ public class Antsomi extends ReactContextBaseJavaModule implements ActivityEvent
 
   @ReactMethod
   public void handleTrackingUrl(String trackingUrl) {
-    AntsomiSdk.handleTrackingUrl(trackingUrl);
+    Context context = mReactApplicationContext.getCurrentActivity();
+
+    if (context == null) {
+      context = mReactApplicationContext.getApplicationContext();
+    }
+
+    AntsomiSdk.handleTrackingUrl(context, trackingUrl);
   }
 
   @ReactMethod
@@ -512,22 +523,24 @@ public class Antsomi extends ReactContextBaseJavaModule implements ActivityEvent
       sendEvent(ANTSOMI_PENDING_LINK, linkCopy);
       mPendingNotification = null;
       // Also clear any residual intent data to avoid re-trigger on resume
-      Activity activity = getCurrentActivity();
+      Activity activity = mReactApplicationContext.getCurrentActivity();
       if (activity != null && activity.getIntent() != null) {
         try {
           activity.getIntent().setData(null);
           activity.getIntent().replaceExtras((Bundle) null);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
       }
       return;
     }
 
     // Fallback: try to read extras from the launch Intent (cold start)
-    Activity activity = getCurrentActivity();
+    Activity activity = mReactApplicationContext.getCurrentActivity();
     if (activity != null && activity.getIntent() != null && activity.getIntent().getExtras() != null) {
       WritableMap payload = convertBundleToWritableMap(activity.getIntent().getExtras());
       // Only emit if there is at least one key
-      if (payload != null && payload.hasKey("android.intent.extra.CHANNEL_ID") == false && payload.toHashMap().size() > 0) {
+      if (payload != null && payload.hasKey("android.intent.extra.CHANNEL_ID") == false
+          && payload.toHashMap().size() > 0) {
         // Cache and emit so JS can pick it up
         mPendingNotification = cloneMap(payload);
         WritableMap openedCopy = cloneMap(payload);
@@ -539,7 +552,8 @@ public class Antsomi extends ReactContextBaseJavaModule implements ActivityEvent
         try {
           activity.getIntent().setData(null);
           activity.getIntent().replaceExtras((Bundle) null);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
         return;
       }
     }
@@ -674,6 +688,7 @@ public class Antsomi extends ReactContextBaseJavaModule implements ActivityEvent
         });
       } else {
         AntsomiSdk.getInstance().getMediaJson(atEvent, new APICallback<MediaJson>() {
+
           @Override
           public void onResponse(MediaJson response) {
             promise.resolve(toJsonStringMediaJson(response));
@@ -683,6 +698,7 @@ public class Antsomi extends ReactContextBaseJavaModule implements ActivityEvent
           public void onFailure(Throwable t) {
             promise.reject("get_media_json_failed", t);
           }
+
         });
       }
 
@@ -757,7 +773,8 @@ public class Antsomi extends ReactContextBaseJavaModule implements ActivityEvent
 
   private WritableMap convertBundleToWritableMap(Bundle bundle) {
     WritableMap map = Arguments.createMap();
-    if (bundle == null) return map;
+    if (bundle == null)
+      return map;
 
     for (String key : bundle.keySet()) {
       Object value = bundle.get(key);
@@ -777,7 +794,8 @@ public class Antsomi extends ReactContextBaseJavaModule implements ActivityEvent
         map.putMap(key, convertBundleToWritableMap((Bundle) value));
       } else if (value instanceof String[]) {
         WritableArray arr = Arguments.createArray();
-        for (String v : (String[]) value) arr.pushString(v);
+        for (String v : (String[]) value)
+          arr.pushString(v);
         map.putArray(key, arr);
       } else {
         // Fallback: stringify
@@ -909,5 +927,151 @@ public class Antsomi extends ReactContextBaseJavaModule implements ActivityEvent
       }
     }
     return array;
+  }
+
+  // ==================== GAMIFICATION APIs ====================
+
+  @ReactMethod
+  public void initGamification(String accessToken, String env, Promise promise) {
+    if (TextUtils.isEmpty(accessToken)) {
+      promise.reject("GAMIFICATION_ERROR", "initGamification: accessToken is empty");
+      return;
+    }
+
+    OSUtils.runOnMainUIThread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          AntsomiSdk.getInstance().initGamification(accessToken, env);
+          mGamificationInitialized = true;
+          promise.resolve(true);
+        } catch (Exception e) {
+          promise.reject("GAMIFICATION_ERROR", e.getMessage(), e);
+        }
+      }
+    });
+  }
+
+  @ReactMethod
+  public void getListGame(Promise promise) {
+    OSUtils.runOnMainUIThread(new Runnable() {
+      @Override
+      public void run() {
+        AntsomiSdk.getInstance().getListGame(new APICallback<GamificationResponse<List<GamificationGame>>>() {
+          @Override
+          public void onResponse(GamificationResponse<List<GamificationGame>> response) {
+            WritableArray games = Arguments.createArray();
+            if (response != null && response.getData() != null) {
+              for (GamificationGame game : response.getData()) {
+                WritableMap map = convertGameToWritableMap(game);
+                games.pushMap(map);
+              }
+            }
+            promise.resolve(games);
+          }
+
+          @Override
+          public void onFailure(Throwable t) {
+            promise.reject("GAMIFICATION_ERROR", t.getMessage(), t);
+          }
+        });
+      }
+    });
+  }
+
+  @ReactMethod
+  public void getGameDetail(String gameId, Promise promise) {
+    OSUtils.runOnMainUIThread(new Runnable() {
+      @Override
+      public void run() {
+        AntsomiSdk.getInstance().getGameDetail(gameId, new APICallback<GamificationResponse<GamificationGame>>() {
+          @Override
+          public void onResponse(GamificationResponse<GamificationGame> response) {
+            if (response != null && response.getData() != null) {
+              WritableMap map = convertGameToWritableMap(response.getData());
+              promise.resolve(map);
+            } else {
+              promise.resolve(null);
+            }
+          }
+
+          @Override
+          public void onFailure(Throwable t) {
+            promise.reject("GAMIFICATION_ERROR", t.getMessage(), t);
+          }
+        });
+      }
+    });
+  }
+
+  @ReactMethod
+  public void getGameByCode(String gameCode, Promise promise) {
+    OSUtils.runOnMainUIThread(new Runnable() {
+      @Override
+      public void run() {
+        AntsomiSdk.getInstance().getGameByCode(gameCode, new APICallback<GamificationResponse<GamificationGame>>() {
+          @Override
+          public void onResponse(GamificationResponse<GamificationGame> response) {
+            if (response != null && response.getData() != null) {
+              WritableMap map = convertGameToWritableMap(response.getData());
+              promise.resolve(map);
+            } else {
+              promise.resolve(null);
+            }
+          }
+
+          @Override
+          public void onFailure(Throwable t) {
+            promise.reject("GAMIFICATION_ERROR", t.getMessage(), t);
+          }
+        });
+      }
+    });
+  }
+
+  @ReactMethod
+  public void playGame(String gameCode, Promise promise) {
+    if (TextUtils.isEmpty(gameCode)) {
+      promise.reject("GAMIFICATION_ERROR", "playGame: gameCode is empty");
+      return;
+    }
+
+
+    OSUtils.runOnMainUIThread(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          String token = AntsomiSdk.getInstance().getGamificationAccessToken();
+          if (!mGamificationInitialized && TextUtils.isEmpty(token)) {
+            promise.reject(
+                "GAMIFICATION_NOT_INITIALIZED",
+                "Gamification is not initialized. Call initGamification(accessToken, env) before playGame.");
+            return;
+          }
+
+          AntsomiSdk.getInstance().playGame(gameCode);
+          promise.resolve(true);
+        } catch (Exception e) {
+          promise.reject("GAMIFICATION_ERROR", e.getMessage(), e);
+        }
+      }
+    });
+
+  }
+
+  private WritableMap convertGameToWritableMap(GamificationGame game) {
+    WritableMap map = Arguments.createMap();
+    if (game == null)
+      return map;
+
+    map.putString("gameId", game.getGameId());
+    map.putString("gameCode", game.getGameCode());
+    map.putString("name", game.getName());
+    map.putString("iconUrl", game.getIconUrl());
+    map.putString("templateUrl", game.getTemplateUrl());
+    map.putString("status", game.getStatus());
+    map.putString("startAt", game.getStartAt());
+    map.putString("endAt", game.getEndAt());
+    return map;
   }
 }

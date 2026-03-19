@@ -2,7 +2,6 @@ import {
   NativeModules,
   NativeEventEmitter,
   Platform,
-  Linking,
 } from 'react-native';
 
 import {
@@ -29,6 +28,121 @@ const callbacksNewMessage: Function[] = [];
 // const eventManager = new EventManager(AntsomiSDK);
 const eventEmitter = new NativeEventEmitter(AntsomiSDK);
 const iosEventEmitter = new NativeEventEmitter(ReactNativeEventEmitter);
+
+type GamificationErrorCode = 'GAMIFICATION_ERROR' | 'UNAUTHORIZED';
+
+type NativeSdkError = {
+  code?: string;
+  message?: string;
+  statusCode?: number;
+  userInfo?: {
+    statusCode?: number;
+  };
+};
+
+export class GamificationError extends Error {
+  code: GamificationErrorCode;
+  requiresLogin: boolean;
+  statusCode?: number;
+  cause?: unknown;
+
+  constructor(params: {
+    message: string;
+    code: GamificationErrorCode;
+    requiresLogin: boolean;
+    statusCode?: number;
+    cause?: unknown;
+  }) {
+    super(params.message);
+    this.name = 'GamificationError';
+    this.code = params.code;
+    this.requiresLogin = params.requiresLogin;
+    this.statusCode = params.statusCode;
+    this.cause = params.cause;
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
+}
+
+function getGamificationErrorMessage(error: unknown): string {
+  if (typeof error === 'string') {
+    return error;
+  }
+
+  const nativeMessage = (error as NativeSdkError | undefined)?.message;
+  if (typeof nativeMessage === 'string' && nativeMessage.length > 0) {
+    return nativeMessage;
+  }
+
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  return 'Gamification request failed';
+}
+
+function getGamificationErrorText(error: unknown): string {
+  const message = getGamificationErrorMessage(error);
+
+  if (message !== 'Gamification request failed') {
+    return message;
+  }
+
+  if (typeof error === 'string') {
+    return error;
+  }
+
+  try {
+    return JSON.stringify(error);
+  } catch (_) {
+    return message;
+  }
+}
+
+function getGamificationStatusCode(error: unknown): number | undefined {
+  const nativeError = error as NativeSdkError | undefined;
+  const directStatusCode =
+    nativeError?.statusCode ?? nativeError?.userInfo?.statusCode;
+
+  if (typeof directStatusCode === 'number') {
+    return directStatusCode;
+  }
+
+  const errorText = getGamificationErrorText(error);
+  const matchedStatusCode = errorText.match(/\b(\d{3})\b/);
+
+  if (!matchedStatusCode) {
+    return undefined;
+  }
+
+  return Number(matchedStatusCode[1]);
+}
+
+function toGamificationError(error: unknown): GamificationError {
+  const statusCode = getGamificationStatusCode(error);
+  const requiresLogin = statusCode === 401;
+  const message = getGamificationErrorMessage(error);
+
+  return new GamificationError({
+    message: requiresLogin
+      ? 'Gamification session expired. Please login again.'
+      : message,
+    code: requiresLogin ? 'UNAUTHORIZED' : 'GAMIFICATION_ERROR',
+    requiresLogin,
+    statusCode,
+    cause: error,
+  });
+}
+
+export function isGamificationUnauthorizedError(error: unknown): boolean {
+  if (error instanceof GamificationError) {
+    return error.code === 'UNAUTHORIZED';
+  }
+
+  return (
+    (error as { code?: unknown } | undefined)?.code === 'UNAUTHORIZED' ||
+    (error as { requiresLogin?: unknown } | undefined)?.requiresLogin === true
+  );
+}
 
 export default class RnAntsomiSdk {
   static async config(
@@ -354,6 +468,104 @@ export default class RnAntsomiSdk {
 
     RnAntsomiSdk.getPendingNotification();
   }
+
+  // ==================== GAMIFICATION APIs ====================
+
+  /**
+   * Initialize Gamification SDK with access token and environment
+   * @param accessToken JWT token for authentication
+   * @param env Environment: 'sandbox' or 'production'
+   */
+  static async initGamification(
+    accessToken: string,
+    env: 'sandbox' | 'production'
+  ): Promise<void> {
+    if (!isNativeModuleLoaded(AntsomiSDK)) {
+      return;
+    }
+    await AntsomiSDK.initGamification(accessToken, env);
+  }
+
+  /**
+   * Get list of available games
+   * @returns Promise resolving to array of GamificationGame
+   */
+  static async getListGame(): Promise<GamificationGame[]> {
+    if (!isNativeModuleLoaded(AntsomiSDK)) {
+      return [];
+    }
+    try {
+      return await AntsomiSDK.getListGame();
+    } catch (error) {
+      throw toGamificationError(error);
+    }
+  }
+
+  /**
+   * Get game detail by game ID
+   * @param gameId Unique game ID
+   * @returns Promise resolving to GamificationGame or null
+   */
+  static async getGameDetail(gameId: string): Promise<GamificationGame | null> {
+    if (!isNativeModuleLoaded(AntsomiSDK)) {
+      return null;
+    }
+    try {
+      return await AntsomiSDK.getGameDetail(gameId);
+    } catch (error) {
+      throw toGamificationError(error);
+    }
+  }
+
+  /**
+   * Get game detail by game code
+   * @param gameCode Game code
+   * @returns Promise resolving to GamificationGame or null
+   */
+  static async getGameByCode(
+    gameCode: string
+  ): Promise<GamificationGame | null> {
+    if (!isNativeModuleLoaded(AntsomiSDK)) {
+      return null;
+    }
+    try {
+      return await AntsomiSDK.getGameByCode(gameCode);
+    } catch (error) {
+      throw toGamificationError(error);
+    }
+  }
+
+  /**
+   * Play a game by opening WebView
+   * @param gameCode Game code to play
+   */
+  static async playGame(gameCode: string): Promise<void> {
+    if (!isNativeModuleLoaded(AntsomiSDK)) {
+      return;
+    }
+    try {
+      console.log('playGame', gameCode);
+      await AntsomiSDK.playGame(gameCode);
+    } catch (error) {
+      throw toGamificationError(error);
+    }
+  }
+
+  /**
+   * Play a game by ID (iOS only, Android uses playGame with gameCode)
+   * @param gameId Game ID to play
+   */
+  static playGameById(gameId: string): void {
+    if (!isNativeModuleLoaded(AntsomiSDK)) {
+      return;
+    }
+    if (Platform.OS === 'ios') {
+      AntsomiSDK.playGameById(gameId);
+    } else {
+      // Android doesn't have playGameById, log warning
+      console.warn('playGameById is only available on iOS. Use playGame(gameCode) on Android.');
+    }
+  }
 }
 
 export interface CDPEvent {
@@ -403,4 +615,18 @@ export enum LogLevel {
   DEBUG = 1,
   VERBOSE = 2,
   INFO = 3,
+}
+
+/**
+ * Gamification Game interface
+ */
+export interface GamificationGame {
+  gameId: string;
+  gameCode: string;
+  name: string;
+  iconUrl: string;
+  templateUrl: string;
+  status: string;
+  startAt: string;
+  endAt: string;
 }

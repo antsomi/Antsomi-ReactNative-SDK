@@ -3,12 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* AntsomirnsdkExampleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* AntsomirnsdkExampleTests.m */; };
-		05FF0DE6A4574101BB6C6EEC /* libPods-NotificationService.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EF34D2CD0F64438C2205512E /* libPods-NotificationService.a */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
@@ -52,7 +51,6 @@
 		00E356EE1AD99517003FC87E /* AntsomirnsdkExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AntsomirnsdkExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* AntsomirnsdkExampleTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AntsomirnsdkExampleTests.m; sourceTree = "<group>"; };
-		0B982AC0D0925497388BCEAE /* Pods-NotificationService.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationService.release.xcconfig"; path = "Target Support Files/Pods-NotificationService/Pods-NotificationService.release.xcconfig"; sourceTree = "<group>"; };
 		11FC6F3D3037D10B6E530FC1 /* Pods-AntsomirnsdkExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AntsomirnsdkExample.debug.xcconfig"; path = "Target Support Files/Pods-AntsomirnsdkExample/Pods-AntsomirnsdkExample.debug.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* AntsomirnsdkExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AntsomirnsdkExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = AntsomirnsdkExample/AppDelegate.h; sourceTree = "<group>"; };
@@ -60,7 +58,6 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = AntsomirnsdkExample/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = AntsomirnsdkExample/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = AntsomirnsdkExample/main.m; sourceTree = "<group>"; };
-		3061919F508971C1E87E7E9E /* Pods-NotificationService.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationService.debug.xcconfig"; path = "Target Support Files/Pods-NotificationService/Pods-NotificationService.debug.xcconfig"; sourceTree = "<group>"; };
 		3EFA1F895826C1EEE8852EEE /* Pods-AntsomirnsdkExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AntsomirnsdkExample.release.xcconfig"; path = "Target Support Files/Pods-AntsomirnsdkExample/Pods-AntsomirnsdkExample.release.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = AntsomirnsdkExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B8FE4CFD22B8713608D522C6 /* libPods-AntsomirnsdkExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-AntsomirnsdkExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -79,11 +76,10 @@
 		BECDF6F62E4C941400079D62 /* NotificationService.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NotificationService.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		BEF8655B2B720B080055A649 /* AntsomirnsdkExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = AntsomirnsdkExample.entitlements; path = AntsomirnsdkExample/AntsomirnsdkExample.entitlements; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		EF34D2CD0F64438C2205512E /* libPods-NotificationService.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotificationService.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		BECDF7012E4C941400079D62 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		BECDF7012E4C941400079D62 /* Exceptions for "NotificationService" folder in "NotificationService" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -93,7 +89,18 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		BECDF6F72E4C941400079D62 /* NotificationService */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (BECDF7012E4C941400079D62 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = NotificationService; sourceTree = "<group>"; };
+		BECDF6F72E4C941400079D62 /* NotificationService */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				BECDF7012E4C941400079D62 /* Exceptions for "NotificationService" folder in "NotificationService" target */,
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = NotificationService;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -116,7 +123,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				05FF0DE6A4574101BB6C6EEC /* libPods-NotificationService.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -171,7 +177,6 @@
 				BE8B741B2B559A0B003A954E /* libSocketRocket.a */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				B8FE4CFD22B8713608D522C6 /* libPods-AntsomirnsdkExample.a */,
-				EF34D2CD0F64438C2205512E /* libPods-NotificationService.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -214,8 +219,6 @@
 			children = (
 				11FC6F3D3037D10B6E530FC1 /* Pods-AntsomirnsdkExample.debug.xcconfig */,
 				3EFA1F895826C1EEE8852EEE /* Pods-AntsomirnsdkExample.release.xcconfig */,
-				3061919F508971C1E87E7E9E /* Pods-NotificationService.debug.xcconfig */,
-				0B982AC0D0925497388BCEAE /* Pods-NotificationService.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -268,7 +271,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = BECDF7022E4C941400079D62 /* Build configuration list for PBXNativeTarget "NotificationService" */;
 			buildPhases = (
-				6EF622BF87727261F68DACE1 /* [CP] Check Pods Manifest.lock */,
 				BECDF6F22E4C941400079D62 /* Sources */,
 				BECDF6F32E4C941400079D62 /* Frameworks */,
 				BECDF6F42E4C941400079D62 /* Resources */,
@@ -406,28 +408,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AntsomirnsdkExample/Pods-AntsomirnsdkExample-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		6EF622BF87727261F68DACE1 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-NotificationService-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		821BFEA0EAD1C4EB43EF3DA2 /* [CP] Copy Pods Resources */ = {
@@ -777,7 +757,6 @@
 		};
 		BECDF6FF2E4C941400079D62 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3061919F508971C1E87E7E9E /* Pods-NotificationService.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -819,7 +798,6 @@
 		};
 		BECDF7002E4C941400079D62 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0B982AC0D0925497388BCEAE /* Pods-NotificationService.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
