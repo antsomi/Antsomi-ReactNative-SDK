@@ -1,7 +1,7 @@
 PODS:
-  - AntsomiFramework (1.1.85)
-  - antsomirnsdk (0.32.0):
-    - AntsomiFramework (= 1.1.85)
+  - AntsomiFramework (1.1.86)
+  - antsomirnsdk (0.34.0):
+    - AntsomiFramework (= 1.1.86)
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1259,8 +1259,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  AntsomiFramework: be912203a177e8d4da4bdafaf08cab164b756d88
-  antsomirnsdk: f29f7978f7eeefd4a81251d96c87a3ac36f0c919
+  AntsomiFramework: 8c51ad1d5b8e1195ae34f57a448e5e8ff8305cca
+  antsomirnsdk: 4543ca93717008bd35f26cfc71948d259ad828bb
   boost: 804e93407974efa021372250922c3c8dadb73f31
   DoubleConversion: fea03f2699887d960129cc54bba7e52542b6f953
   FBLazyVector: 2296bacb2fa157a43991048b0a9d71c1c8b65083

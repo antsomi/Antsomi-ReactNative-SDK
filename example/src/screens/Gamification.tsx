@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import RnAntsomiSdk, { type GamificationGame } from '../../../src';
 
-const GAMIFICATION_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnYW1pZmljYXRpb24tc2RrIiwic3ViIjoiMTA5MTk4NDU5MTkzNjA5NzYwNCIsImFwcF9pZCI6IjU2NDg5MjMzNCIsInBvcnRhbF9pZCI6NTY0ODkyMzM0LCJrZXlfaWQiOiIwMTljMzFlZS00Y2FmLTc0YWQtOTgwNS02YjQwNWUzNDk0ZGYiLCJpYXQiOjE3NzM4OTY4MDMsImV4cCI6MTc3MzkwMDQwM30.OVr1B65OtmlauofrQZhWWvis3EOrfnDc_f9kPaWwgZs';
+const GAMIFICATION_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnYW1pZmljYXRpb24tc2RrIiwic3ViIjoiMTA5MTk4NDU5MTkzNjA5NzYwNCIsImFwcF9pZCI6IjU2NDg5MjMzNCIsInBvcnRhbF9pZCI6NTY0ODkyMzM0LCJrZXlfaWQiOiIwMTljMzFlZS00Y2FmLTc0YWQtOTgwNS02YjQwNWUzNDk0ZGYiLCJpYXQiOjE3NzQzMjA4ODQsImV4cCI6MTc3NDMyNDQ4NH0.mAE1tJ1vqxkHGhVqu3Zm6ngJpPApSor9pdA_Vzqnnuw';
 const GAME_CODE = 'hl-survey';
 
 export default function GamificationScreen() {

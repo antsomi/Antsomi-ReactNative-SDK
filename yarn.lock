@@ -6,12 +6,12 @@ __metadata:
   cacheKey: 8
 
 "@antsomicorp/antsomirnsdk@file:..::locator=antsomirnsdk-example%40workspace%3Aexample":
-  version: 0.31.0
-  resolution: "@antsomicorp/antsomirnsdk@file:..#..::hash=50a6ba&locator=antsomirnsdk-example%40workspace%3Aexample"
+  version: 0.34.0
+  resolution: "@antsomicorp/antsomirnsdk@file:..#..::hash=1ef032&locator=antsomirnsdk-example%40workspace%3Aexample"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 30c69ff74ac6cc63995df46beb478d1bc981671cb889dd0601f74da13c247c070f48ad073a4c76cae3d4e0fd52dd58a16eabb01f9943ba4a38e42fc8263ee529
+  checksum: 53af8a103895ac6b43363f04706291873ea205d079b32ba1f714e3890a60b2f550d50d773c468aacccd03c291f36385a0833693fd7eafb6908f645ccf272c962
   languageName: node
   linkType: hard
 
