@@ -1,7 +1,7 @@
 PODS:
-  - AntsomiFramework (1.1.86)
-  - antsomirnsdk (0.34.0):
-    - AntsomiFramework (= 1.1.86)
+  - AntsomiFramework (1.1.88)
+  - antsomirnsdk (0.36.0):
+    - AntsomiFramework (= 1.1.88)
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1082,6 +1082,7 @@ PODS:
   - Yoga (1.14.0)
 
 DEPENDENCIES:
+  - AntsomiFramework (from `https://raw.githubusercontent.com/CocoaPods/Specs/master/Specs/7/4/8/AntsomiFramework/1.1.88/AntsomiFramework.podspec.json`)
   - antsomirnsdk (from `../..`)
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
@@ -1142,12 +1143,13 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
-    - AntsomiFramework
     - fmt
     - libevent
     - SocketRocket
 
 EXTERNAL SOURCES:
+  AntsomiFramework:
+    :podspec: https://raw.githubusercontent.com/CocoaPods/Specs/master/Specs/7/4/8/AntsomiFramework/1.1.88/AntsomiFramework.podspec.json
   antsomirnsdk:
     :path: "../.."
   boost:
@@ -1259,9 +1261,9 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  AntsomiFramework: 8c51ad1d5b8e1195ae34f57a448e5e8ff8305cca
-  antsomirnsdk: 4543ca93717008bd35f26cfc71948d259ad828bb
-  boost: 804e93407974efa021372250922c3c8dadb73f31
+  AntsomiFramework: 9d3e41efa7738733a7afda992901595eaedcd1a9
+  antsomirnsdk: e7d0082ba1c8d8150ea9c7ca6d8b5ed65aff0c3d
+  boost: d3f49c53809116a5d38da093a8aa78bf551aed09
   DoubleConversion: fea03f2699887d960129cc54bba7e52542b6f953
   FBLazyVector: 2296bacb2fa157a43991048b0a9d71c1c8b65083
   FBReactNativeSpec: df0ebe69acd14ce0be0269cf75b6e338a727259b
@@ -1318,6 +1320,6 @@ SPEC CHECKSUMS:
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   Yoga: 2b33a7ac96c58cdaa7b810948fc6a2a76ed2d108
 
-PODFILE CHECKSUM: ab9f902f3ef30c1d2ff8c3d7bd62a45d2526ae5a
+PODFILE CHECKSUM: e5f25637d290965dbc53a76050eb25375a49a052
 
 COCOAPODS: 1.16.2

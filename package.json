@@ -1,6 +1,6 @@
 {
   "name": "@antsomicorp/antsomirnsdk",
-  "version": "0.35.0",
+  "version": "0.36.0",
   "description": "Antsomi React Native SDK",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -42,7 +42,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/antsomi/Antsomi-ReactNative-SDK"
+    "url": "git+https://github.com/antsomi/Antsomi-ReactNative-SDK.git"
   },
   "author": "KhanhHV <khanhhv@antsomi.com> (https://github.com/khanhhv01)",
   "license": "MIT",

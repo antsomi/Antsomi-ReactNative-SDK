@@ -128,10 +128,12 @@ RCT_EXTERN_METHOD(getGameByCode:(NSString *)gameCode
                   rejecter:(RCTPromiseRejectBlock)reject)
 
 RCT_EXTERN_METHOD(playGame:(NSString *)gameCode
+                  sourceUrl:(NSString *)sourceUrl
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 
 RCT_EXTERN_METHOD(playGameById:(NSString *)gameId
+                  sourceUrl:(NSString *)sourceUrl
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 

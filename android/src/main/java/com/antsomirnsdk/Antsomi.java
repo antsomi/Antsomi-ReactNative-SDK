@@ -1030,7 +1030,7 @@ public class Antsomi extends ReactContextBaseJavaModule implements ActivityEvent
   }
 
   @ReactMethod
-  public void playGame(String gameCode, Promise promise) {
+  public void playGame(String gameCode, String sourceUrl, Promise promise) {
     if (TextUtils.isEmpty(gameCode)) {
       promise.reject("GAMIFICATION_ERROR", "playGame: gameCode is empty");
       return;
@@ -1049,7 +1049,7 @@ public class Antsomi extends ReactContextBaseJavaModule implements ActivityEvent
             return;
           }
 
-          AntsomiSdk.getInstance().playGame(gameCode);
+          AntsomiSdk.getInstance().playGame(gameCode, sourceUrl);
           promise.resolve(true);
         } catch (Exception e) {
           promise.reject("GAMIFICATION_ERROR", e.getMessage(), e);

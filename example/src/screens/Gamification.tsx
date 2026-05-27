@@ -9,8 +9,8 @@ import {
 } from 'react-native';
 import RnAntsomiSdk, { type GamificationGame } from '../../../src';
 
-const GAMIFICATION_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnYW1pZmljYXRpb24tc2RrIiwic3ViIjoiMTA5MTk4NDU5MTkzNjA5NzYwNCIsImFwcF9pZCI6IjU2NDg5MjMzNCIsInBvcnRhbF9pZCI6NTY0ODkyMzM0LCJrZXlfaWQiOiIwMTljMzFlZS00Y2FmLTc0YWQtOTgwNS02YjQwNWUzNDk0ZGYiLCJpYXQiOjE3NzQzMjA4ODQsImV4cCI6MTc3NDMyNDQ4NH0.mAE1tJ1vqxkHGhVqu3Zm6ngJpPApSor9pdA_Vzqnnuw';
-const GAME_CODE = 'hl-survey';
+const GAMIFICATION_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnYW1pZmljYXRpb24tc2RrIiwic3ViIjoiMzZlOTUyZGM3MTY3ZmM0OTQyYWY2MjNlNWU0ZjFjOWM1MDliMzgzM2FhODQ1YzdiMTJiYzhhNDQ0MmIyYWFjMSIsImFwcF9pZCI6IjU2NDg5MjMzNCIsInBvcnRhbF9pZCI6NTY0ODkyMzM0LCJrZXlfaWQiOiIwMTljMzFlZS00Y2FmLTc0YWQtOTgwNS02YjQwNWUzNDk0ZGYiLCJpYXQiOjE3Nzk4NzQzNjksImV4cCI6MTc3OTg3Nzk2OX0.7KrHZHplWDbSghMzqfz4pwzN7kQshaqOnFleT41I79Q';
+const GAME_CODE = 'he-phieu-em-2026';
 
 export default function GamificationScreen() {
     const [games, setGames] = useState<GamificationGame[]>([]);
@@ -62,7 +62,7 @@ export default function GamificationScreen() {
 
     const handlePlayGame = async () => {
         try {
-            await RnAntsomiSdk.playGame(GAME_CODE);
+            await RnAntsomiSdk.playGame(GAME_CODE, 'highlands-stg://home?utm_type=Offline&utm_source=HLC_TEST&utm_medium=POSM_TEST&utm_term=QR_TEST&utm_campaign=Highlands_Test&utm_content=Dec2025_test');
         } catch (error) {
             Alert.alert('Play Game Error', String(error));
         }

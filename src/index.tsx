@@ -1,8 +1,4 @@
-import {
-  NativeModules,
-  NativeEventEmitter,
-  Platform,
-} from 'react-native';
+import { NativeModules, NativeEventEmitter, Platform } from 'react-native';
 
 import {
   GET_MESSAGE_APP_INBOX_LIST,
@@ -538,14 +534,17 @@ export default class RnAntsomiSdk {
   /**
    * Play a game by opening WebView
    * @param gameCode Game code to play
+   * @param sourceUrl Source URL for the game
    */
-  static async playGame(gameCode: string): Promise<void> {
+  static async playGame(
+    gameCode: string,
+    sourceUrl: string = ''
+  ): Promise<void> {
     if (!isNativeModuleLoaded(AntsomiSDK)) {
       return;
     }
     try {
-      console.log('playGame', gameCode);
-      await AntsomiSDK.playGame(gameCode);
+      await AntsomiSDK.playGame(gameCode, sourceUrl);
     } catch (error) {
       throw toGamificationError(error);
     }
@@ -554,16 +553,26 @@ export default class RnAntsomiSdk {
   /**
    * Play a game by ID (iOS only, Android uses playGame with gameCode)
    * @param gameId Game ID to play
+   * @param sourceUrl Source URL for the game
    */
-  static playGameById(gameId: string): void {
+  static async playGameById(
+    gameId: string,
+    sourceUrl: string = ''
+  ): Promise<void> {
     if (!isNativeModuleLoaded(AntsomiSDK)) {
       return;
     }
     if (Platform.OS === 'ios') {
-      AntsomiSDK.playGameById(gameId);
+      try {
+        await AntsomiSDK.playGameById(gameId, sourceUrl);
+      } catch (error) {
+        throw toGamificationError(error);
+      }
     } else {
       // Android doesn't have playGameById, log warning
-      console.warn('playGameById is only available on iOS. Use playGame(gameCode) on Android.');
+      console.warn(
+        'playGameById is only available on iOS. Use playGame(gameCode) on Android.'
+      );
     }
   }
 }

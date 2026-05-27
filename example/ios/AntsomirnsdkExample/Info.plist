@@ -49,5 +49,11 @@
 	<false/>
 	<key>aps-environment</key>
 	<string>development</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Camera access is required for games that use AR or photo features.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Microphone access is required for games that use audio features.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Photo library access is required to save generated game media.</string>
 </dict>
 </plist>

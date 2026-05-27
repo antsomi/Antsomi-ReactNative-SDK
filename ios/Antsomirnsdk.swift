@@ -452,21 +452,40 @@ class AntsomiSDK: NSObject, RCTBridgeModule {
     }
     
     @objc
-    func playGame(_ gameCode: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    func playGame(_ gameCode: String, sourceUrl: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
         DispatchQueue.main.async {
-            Antsomi.shared.playGame(gameCode: gameCode)
+            Antsomi.shared.playGame(gameCode: gameCode, sourceUrl: sourceUrl)
             resolve(true)
         }
     }
     
     @objc
-    func playGameById(_ gameId: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-        DispatchQueue.main.async {
-            Antsomi.shared.playGame(gameId: gameId)
-            resolve(true)
+    func playGameById(_ gameId: String, sourceUrl: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+        if sourceUrl.isEmpty {
+            DispatchQueue.main.async {
+                Antsomi.shared.playGame(gameId: gameId)
+                resolve(true)
+            }
+            return
+        }
+
+        Antsomi.shared.getGameDetail(gameId: gameId) { result in
+            switch result {
+            case .success(let game):
+                guard let gameCode = game.gameCode, !gameCode.isEmpty else {
+                    reject("GAMIFICATION_ERROR", "playGameById: gameCode is empty", nil)
+                    return
+                }
+                DispatchQueue.main.async {
+                    Antsomi.shared.playGame(gameCode: gameCode, sourceUrl: sourceUrl)
+                    resolve(true)
+                }
+            case .failure(let error):
+                reject("GAMIFICATION_ERROR", error.localizedDescription, error)
+            }
         }
     }
-    
+
     private func convertGameToDict(_ game: GamificationGame) -> [String: Any?] {
         return [
             "gameId": game.gameId,
