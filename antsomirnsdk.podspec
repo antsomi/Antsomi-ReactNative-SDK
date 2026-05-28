@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/khanhhv01/antsomirnsdk.git", :tag => "#{s.version}" }
 
   s.source_files = "ios/**/*.{h,m,mm,swift}"
-  s.dependency 'AntsomiFramework', "1.1.89"
+  s.dependency 'AntsomiFramework', "1.1.90"
   s.frameworks = "ReplayKit"
   s.swift_version = '5.0'
 
