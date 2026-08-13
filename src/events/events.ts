@@ -21,6 +21,8 @@ export const GET_PROPS_ID = 'ANTSOMI-get-props-id';
 
 export const GET_PORTAL_ID = 'ANTSOMI-get-portal-id';
 
+export const GET_DEVICE_ID = 'ANTSOMI-get-device-id';
+
 // deeplink
 export const PENDING_LINK = 'ANTSOMI-pending-link';
 

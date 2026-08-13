@@ -11,6 +11,7 @@ import {
   GET_CUSTOMER_ID,
   GET_PROPS_ID,
   GET_PORTAL_ID,
+  GET_DEVICE_ID,
   PENDING_LINK,
   OPENED_NOTIFICATION,
 } from './events/events';
@@ -24,6 +25,21 @@ const callbacksNewMessage: Function[] = [];
 // const eventManager = new EventManager(AntsomiSDK);
 const eventEmitter = new NativeEventEmitter(AntsomiSDK);
 const iosEventEmitter = new NativeEventEmitter(ReactNativeEventEmitter);
+
+// On Android these getters return their value through a one-shot device event.
+// The listener MUST be attached before triggering the native call, otherwise the
+// native side can emit before the listener exists and the event is lost (causing
+// the promise to hang "sometimes"). The subscription removes itself on the first
+// event so listeners never accumulate and cross-resolve later calls.
+function awaitNativeEvent<T>(eventName: string, trigger: () => void): Promise<T> {
+  return new Promise<T>((resolve) => {
+    const subscription = eventEmitter.addListener(eventName, (data: T) => {
+      subscription.remove();
+      resolve(data);
+    });
+    trigger();
+  });
+}
 
 type GamificationErrorCode = 'GAMIFICATION_ERROR' | 'UNAUTHORIZED';
 
@@ -169,18 +185,12 @@ export default class RnAntsomiSdk {
     labels: string[],
     page: number
   ): Promise<AppInboxItem[]> {
-    return await new Promise(async (resolve, _) => {
-      if (Platform.OS === 'ios') {
-        const data = await AntsomiSDK.getMessages(labels, page);
-        resolve(data);
-      } else {
-        await AntsomiSDK.getMessages(labels, page);
-
-        eventEmitter.addListener(GET_MESSAGE_APP_INBOX_LIST, (messages) =>
-          resolve(messages)
-        );
-      }
-    });
+    if (Platform.OS === 'ios') {
+      return await AntsomiSDK.getMessages(labels, page);
+    }
+    return await awaitNativeEvent(GET_MESSAGE_APP_INBOX_LIST, () =>
+      AntsomiSDK.getMessages(labels, page)
+    );
   }
 
   static async track(event: CDPEvent): Promise<void> {
@@ -196,71 +206,39 @@ export default class RnAntsomiSdk {
   }
 
   static async getCustomerId() {
-    return await new Promise(async (resolve, _) => {
-      if (Platform.OS === 'ios') {
-        const data = await AntsomiSDK.getCustomerId();
-        resolve(data);
-      } else {
-        await AntsomiSDK.getCustomerId();
-
-        eventEmitter.addListener(GET_CUSTOMER_ID, (messages) =>
-          resolve(messages)
-        );
-      }
-    });
+    if (Platform.OS === 'ios') {
+      return await AntsomiSDK.getCustomerId();
+    }
+    return await awaitNativeEvent(GET_CUSTOMER_ID, () =>
+      AntsomiSDK.getCustomerId()
+    );
   }
 
   static async getPropsId() {
-    return await new Promise(async (resolve, _) => {
-      if (Platform.OS === 'ios') {
-        const data = await AntsomiSDK.getPropsId();
-        resolve(data);
-      } else {
-        await AntsomiSDK.getPropsId();
-
-        eventEmitter.addListener(GET_PROPS_ID, (messages) => resolve(messages));
-      }
-    });
+    if (Platform.OS === 'ios') {
+      return await AntsomiSDK.getPropsId();
+    }
+    return await awaitNativeEvent(GET_PROPS_ID, () => AntsomiSDK.getPropsId());
   }
 
   static async getPortalId() {
-    return await new Promise(async (resolve, _) => {
-      if (Platform.OS === 'ios') {
-        const data = await AntsomiSDK.getPortalId();
-        resolve(data);
-      } else {
-        await AntsomiSDK.getPortalId();
-
-        eventEmitter.addListener(GET_PORTAL_ID, (messages) =>
-          resolve(messages)
-        );
-      }
-    });
+    if (Platform.OS === 'ios') {
+      return await AntsomiSDK.getPortalId();
+    }
+    return await awaitNativeEvent(GET_PORTAL_ID, () => AntsomiSDK.getPortalId());
   }
 
   static async getDeviceId() {
-    return await new Promise(async (resolve, _) => {
-      if (Platform.OS === 'ios') {
-        const data = await AntsomiSDK.getDeviceId();
-        resolve(data);
-      } else {
-        await AntsomiSDK.getDeviceId();
-
-        eventEmitter.addListener(GET_PORTAL_ID, (messages) =>
-          resolve(messages)
-        );
-      }
-    });
+    if (Platform.OS === 'ios') {
+      return await AntsomiSDK.getDeviceId();
+    }
+    return await awaitNativeEvent(GET_DEVICE_ID, () => AntsomiSDK.getDeviceId());
   }
 
   static async getUnreadMessageCount() {
-    return await new Promise(async (resolve, _) => {
-      AntsomiSDK.getUnreadMessageCount();
-
-      eventEmitter.addListener(GET_COUNT_TOTAL_INBOX, (messages) =>
-        resolve(messages)
-      );
-    });
+    return await awaitNativeEvent(GET_COUNT_TOTAL_INBOX, () =>
+      AntsomiSDK.getUnreadMessageCount()
+    );
   }
 
   static async getAllLabels(callback: Function) {
@@ -268,21 +246,21 @@ export default class RnAntsomiSdk {
       const data = await AntsomiSDK.getAllLabels();
       callback(data);
     } else {
-      AntsomiSDK.getAllLabels();
-      eventEmitter.addListener(GET_ALL_LABELS_INBOX, (messages) =>
-        callback(messages)
+      const subscription = eventEmitter.addListener(
+        GET_ALL_LABELS_INBOX,
+        (messages) => {
+          subscription.remove();
+          callback(messages);
+        }
       );
+      AntsomiSDK.getAllLabels();
     }
   }
 
   static async getMessageById(messageId: string) {
-    return await new Promise(async (resolve, _) => {
-      AntsomiSDK.getMessageById(messageId);
-
-      eventEmitter.addListener(GET_DETAIL_MESSAGE_INBOX, (messages) =>
-        resolve(messages)
-      );
-    });
+    return await awaitNativeEvent(GET_DETAIL_MESSAGE_INBOX, () =>
+      AntsomiSDK.getMessageById(messageId)
+    );
   }
 
   static async setPageLimit(limit: number) {
@@ -345,29 +323,17 @@ export default class RnAntsomiSdk {
   }
 
   static async getPushUid() {
-    return await new Promise(async (resolve, _) => {
-      if (Platform.OS === 'ios') {
-        const data = await AntsomiSDK.getPushUid();
-        resolve(data);
-      } else {
-        await AntsomiSDK.getPushUid();
-
-        eventEmitter.addListener(GET_PUSH_UID, (messages) => resolve(messages));
-      }
-    });
+    if (Platform.OS === 'ios') {
+      return await AntsomiSDK.getPushUid();
+    }
+    return await awaitNativeEvent(GET_PUSH_UID, () => AntsomiSDK.getPushUid());
   }
 
   static async getUid() {
-    return await new Promise(async (resolve, _) => {
-      if (Platform.OS === 'ios') {
-        const data = await AntsomiSDK.getUid();
-        resolve(data);
-      } else {
-        await AntsomiSDK.getUid();
-
-        eventEmitter.addListener(GET_UID, (messages) => resolve(messages));
-      }
-    });
+    if (Platform.OS === 'ios') {
+      return await AntsomiSDK.getUid();
+    }
+    return await awaitNativeEvent(GET_UID, () => AntsomiSDK.getUid());
   }
 
   static async resetUid(): Promise<void> {
