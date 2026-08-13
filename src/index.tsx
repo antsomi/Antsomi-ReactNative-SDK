@@ -151,9 +151,7 @@ export default class RnAntsomiSdk {
       return;
     }
 
-    AntsomiSDK.config(portalId, propsId, appId, appGroupId);
-
-    return;
+    await AntsomiSDK.config(portalId, propsId, appId, appGroupId);
   }
 
   static async appInboxInit(

@@ -67,6 +67,7 @@ class AntsomiSDK: NSObject, RCTBridgeModule {
             }
             
             Antsomi.shared.trackAppLaunch();
+            resolver(true)
         }
         
     }
@@ -156,46 +157,47 @@ class AntsomiSDK: NSObject, RCTBridgeModule {
     
     @objc
     func track(_ event: [String: Any], resolver:@escaping RCTPromiseResolveBlock,rejecter reject:@escaping RCTPromiseRejectBlock) {
-        var eventCDP = CDPEvent()
-        if let eventName =  event["en"] as? String{
-            eventCDP.setEventName(eventName: eventName)
-        }
-        
-        if let items = event["items"] as? [[String:Any]] {
-            eventCDP.setItems(items: items)
-        }
-        
-        if let userPropperties = event["userProps"] as? [String : Any]{
-            
-            eventCDP.setUserPropperties(userPropperties: userPropperties)
-        }
-        
-        if let objectProperties = event["objectProps"] as? [String : Any] {
-            eventCDP.setObjectProperties(objectProperties: objectProperties)
-        }
-        
-        if let eventProperties = event["eventProps"] as? [String : Any] {
-            eventCDP.setEventProperties(eventProperties: eventProperties)
-        }
-        
-        if let customerProperties = event["customerProps"] as? [String : Any] {
-            if customerProperties.count != 0 {
-                eventCDP.setCustomerProperties(customerProperties: customerProperties)
+        DispatchQueue.main.async {
+            var eventCDP = CDPEvent()
+            if let eventName =  event["en"] as? String{
+                eventCDP.setEventName(eventName: eventName)
             }
+
+            if let items = event["items"] as? [[String:Any]] {
+                eventCDP.setItems(items: items)
+            }
+
+            if let userPropperties = event["userProps"] as? [String : Any]{
+
+                eventCDP.setUserPropperties(userPropperties: userPropperties)
+            }
+
+            if let objectProperties = event["objectProps"] as? [String : Any] {
+                eventCDP.setObjectProperties(objectProperties: objectProperties)
+            }
+
+            if let eventProperties = event["eventProps"] as? [String : Any] {
+                eventCDP.setEventProperties(eventProperties: eventProperties)
+            }
+
+            if let customerProperties = event["customerProps"] as? [String : Any] {
+                if customerProperties.count != 0 {
+                    eventCDP.setCustomerProperties(customerProperties: customerProperties)
+                }
+            }
+
+            Antsomi.shared.track(event: eventCDP)
+
+            resolver(true)
         }
-        
-        
-        Antsomi.shared.track(event: eventCDP)
-        
-        resolver(true)
     }
     
     @objc
     func trackScreen(_ screenName: String, screenTitle: String?, screenType: String?, resolver:@escaping RCTPromiseResolveBlock,rejecter reject:@escaping RCTPromiseRejectBlock) {
-        
-        Antsomi.shared.trackScreen(name: screenName,title: screenTitle ?? "", type : screenType ?? "")
-        
-        resolver(true)
+        DispatchQueue.main.async {
+            Antsomi.shared.trackScreen(name: screenName,title: screenTitle ?? "", type : screenType ?? "")
+            resolver(true)
+        }
     }
     
     @objc
@@ -303,42 +305,43 @@ class AntsomiSDK: NSObject, RCTBridgeModule {
   
   @objc
   func getMediaJson(_ event: [String: Any], storyId: String?, resolver: @escaping RCTPromiseResolveBlock,rejecter reject: @escaping RCTPromiseRejectBlock) {
-      let resolve = resolver
-      var eventCDP = CDPEvent()
-      if let eventName =  event["en"] as? String{
-          eventCDP.setEventName(eventName: eventName)
-      }
-      
-      if let items = event["items"] as? [[String:Any]] {
-          eventCDP.setItems(items: items)
-      }
-      
-      if let userPropperties = event["userProps"] as? [String : Any]{
-          
-          eventCDP.setUserPropperties(userPropperties: userPropperties)
-      }
-      
-      if let objectProperties = event["objectProps"] as? [String : Any] {
-          eventCDP.setObjectProperties(objectProperties: objectProperties)
-      }
-      
-      if let eventProperties = event["eventProps"] as? [String : Any] {
-          eventCDP.setEventProperties(eventProperties: eventProperties)
-      }
-      
-      if let customerProperties = event["customerProps"] as? [String : Any] {
-          if customerProperties.count != 0 {
-              eventCDP.setCustomerProperties(customerProperties: customerProperties)
+      DispatchQueue.main.async {
+          var eventCDP = CDPEvent()
+          if let eventName =  event["en"] as? String{
+              eventCDP.setEventName(eventName: eventName)
           }
-      }
-    
-      if let storyId = storyId, !storyId.isEmpty {
-          Antsomi.shared.getMediaJson(event: eventCDP, storyId: storyId) { mediaJson in
-            resolve(mediaJson)
+
+          if let items = event["items"] as? [[String:Any]] {
+              eventCDP.setItems(items: items)
           }
-      } else {
-          Antsomi.shared.getMediaJson(event: eventCDP) { mediaJson in
-            resolve(mediaJson)
+
+          if let userPropperties = event["userProps"] as? [String : Any]{
+
+              eventCDP.setUserPropperties(userPropperties: userPropperties)
+          }
+
+          if let objectProperties = event["objectProps"] as? [String : Any] {
+              eventCDP.setObjectProperties(objectProperties: objectProperties)
+          }
+
+          if let eventProperties = event["eventProps"] as? [String : Any] {
+              eventCDP.setEventProperties(eventProperties: eventProperties)
+          }
+
+          if let customerProperties = event["customerProps"] as? [String : Any] {
+              if customerProperties.count != 0 {
+                  eventCDP.setCustomerProperties(customerProperties: customerProperties)
+              }
+          }
+
+          if let storyId = storyId, !storyId.isEmpty {
+              Antsomi.shared.getMediaJson(event: eventCDP, storyId: storyId) { mediaJson in
+                resolver(mediaJson)
+              }
+          } else {
+              Antsomi.shared.getMediaJson(event: eventCDP) { mediaJson in
+                resolver(mediaJson)
+              }
           }
       }
   }
