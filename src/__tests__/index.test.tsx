@@ -4,6 +4,7 @@ const path = require('path');
 jest.mock('react-native', () => ({
   NativeModules: {
     AntsomiSDK: {
+      config: jest.fn(),
       getListGame: jest.fn(),
       playGame: jest.fn(),
       playGameById: jest.fn(),
@@ -35,6 +36,96 @@ const mockPlayGameById = NativeModules.AntsomiSDK
   .playGameById as jest.MockedFunction<
   typeof NativeModules.AntsomiSDK.playGameById
 >;
+const mockConfig = NativeModules.AntsomiSDK.config as jest.MockedFunction<
+  typeof NativeModules.AntsomiSDK.config
+>;
+
+describe('RnAntsomiSdk.config', () => {
+  beforeEach(() => {
+    mockConfig.mockReset();
+  });
+
+  it('does not resolve until native activation has completed', async () => {
+    let resolveNativeConfig: ((value?: unknown) => void) | undefined;
+    mockConfig.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveNativeConfig = resolve;
+        })
+    );
+
+    let didResolve = false;
+    const configPromise = RnAntsomiSdk.config(
+      'portal',
+      'props',
+      'app',
+      'group'
+    ).then(() => {
+      didResolve = true;
+    });
+
+    await Promise.resolve();
+
+    expect(mockConfig).toHaveBeenCalledWith('portal', 'props', 'app', 'group');
+    expect(didResolve).toBe(false);
+
+    resolveNativeConfig?.(true);
+    await configPromise;
+
+    expect(didResolve).toBe(true);
+  });
+});
+
+describe('iOS tracking bridge queue contract', () => {
+  const rootDir = path.resolve(__dirname, '../..');
+  const iosModule = fs.readFileSync(
+    path.join(rootDir, 'ios/Antsomirnsdk.swift'),
+    'utf8'
+  );
+
+  const nativeMethod = (start: string, end: string) => {
+    const startIndex = iosModule.indexOf(start);
+    const endIndex = iosModule.indexOf(end, startIndex);
+
+    return iosModule.slice(startIndex, endIndex);
+  };
+
+  it('finishes config only after main-thread activation', () => {
+    const configMethod = nativeMethod(
+      'func config(_ portalId:',
+      'func setLogLevel('
+    );
+
+    expect(configMethod).toContain('DispatchQueue.main.async');
+    expect(configMethod).toContain('Antsomi.shared.activate(with: config)');
+    expect(configMethod).toContain('resolver(true)');
+  });
+
+  it('creates CDP events on the main queue before calling the framework', () => {
+    const trackMethod = nativeMethod(
+      'func track(_ event:',
+      'func trackScreen('
+    );
+
+    expect(trackMethod).toContain('DispatchQueue.main.async');
+    expect(trackMethod).toContain('var eventCDP = CDPEvent()');
+    expect(trackMethod).toContain('Antsomi.shared.track(event: eventCDP)');
+  });
+
+  it('keeps trackScreen and getMediaJson on the main queue', () => {
+    const trackScreenMethod = nativeMethod(
+      'func trackScreen(',
+      'func getAllLabels('
+    );
+    const getMediaJsonMethod = nativeMethod(
+      'func getMediaJson(',
+      'func modifyAction('
+    );
+
+    expect(trackScreenMethod).toContain('DispatchQueue.main.async');
+    expect(getMediaJsonMethod).toContain('DispatchQueue.main.async');
+  });
+});
 
 describe('RnAntsomiSdk.getListGame', () => {
   beforeEach(() => {
