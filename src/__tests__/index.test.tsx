@@ -1,19 +1,25 @@
 const fs = require('fs');
 const path = require('path');
 
+const mockIosAddListener = jest.fn();
+const mockIosSubscriptionRemove = jest.fn();
+
 jest.mock('react-native', () => ({
   NativeModules: {
     AntsomiSDK: {
       config: jest.fn(),
+      getPendingNotification: jest.fn(),
       getListGame: jest.fn(),
       playGame: jest.fn(),
       playGameById: jest.fn(),
     },
     ReactNativeEventEmitter: {},
   },
-  NativeEventEmitter: jest.fn().mockImplementation(() => ({
-    addListener: jest.fn(),
-  })),
+  NativeEventEmitter: class {
+    addListener(...args: unknown[]) {
+      return mockIosAddListener(...args);
+    }
+  },
   Platform: {
     OS: 'ios',
   },
@@ -38,6 +44,10 @@ const mockPlayGameById = NativeModules.AntsomiSDK
 >;
 const mockConfig = NativeModules.AntsomiSDK.config as jest.MockedFunction<
   typeof NativeModules.AntsomiSDK.config
+>;
+const mockGetPendingNotification = NativeModules.AntsomiSDK
+  .getPendingNotification as jest.MockedFunction<
+  typeof NativeModules.AntsomiSDK.getPendingNotification
 >;
 
 describe('RnAntsomiSdk.config', () => {
@@ -124,6 +134,97 @@ describe('iOS tracking bridge queue contract', () => {
 
     expect(trackScreenMethod).toContain('DispatchQueue.main.async');
     expect(getMediaJsonMethod).toContain('DispatchQueue.main.async');
+  });
+});
+
+describe('RnAntsomiSdk.onOpenedNotification', () => {
+  beforeEach(() => {
+    mockGetPendingNotification.mockReset();
+    mockIosAddListener.mockReset();
+    mockIosSubscriptionRemove.mockReset();
+    mockIosAddListener.mockReturnValue({ remove: mockIosSubscriptionRemove });
+  });
+
+  it('delivers a cold-start pending notification after attaching the listener', async () => {
+    const pendingNotification = { pushId: 'push-1' };
+    const callback = jest.fn();
+    mockGetPendingNotification.mockResolvedValueOnce(pendingNotification);
+
+    RnAntsomiSdk.onOpenedNotification(callback);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(mockIosAddListener).toHaveBeenCalledWith(
+      'ANTSOMI-opened-notification',
+      expect.any(Function)
+    );
+    expect(callback).toHaveBeenCalledWith(pendingNotification);
+  });
+
+  it('returns an unsubscribe function for the native event listener', () => {
+    const unsubscribe = RnAntsomiSdk.onOpenedNotification(jest.fn());
+
+    unsubscribe();
+
+    expect(mockIosSubscriptionRemove).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('iOS notification bridge contract', () => {
+  const rootDir = path.resolve(__dirname, '../..');
+  const iosBridge = fs.readFileSync(
+    path.join(rootDir, 'ios/Antsomirnsdk.mm'),
+    'utf8'
+  );
+  const iosHeader = fs.readFileSync(
+    path.join(rootDir, 'ios/Antsomirnsdk-Bridging-Header.h'),
+    'utf8'
+  );
+  const iosModule = fs.readFileSync(
+    path.join(rootDir, 'ios/Antsomirnsdk.swift'),
+    'utf8'
+  );
+  const iosEmitter = fs.readFileSync(
+    path.join(rootDir, 'ios/ReactNativeEventEmitter.swift'),
+    'utf8'
+  );
+
+  const nativeMethod = (start: string, end: string) => {
+    const startIndex = iosModule.indexOf(start);
+    const endIndex = iosModule.indexOf(end, startIndex);
+
+    return iosModule.slice(startIndex, endIndex);
+  };
+
+  it('exports the event emitter under its own JS module name', () => {
+    expect(iosBridge).toContain(
+      'RCT_EXTERN_MODULE(ReactNativeEventEmitter, RCTEventEmitter)'
+    );
+    expect(iosBridge).not.toContain(
+      'RCT_EXTERN_REMAP_MODULE(AntsomiSDK, ReactNativeEventEmitter'
+    );
+    expect(iosHeader).not.toContain('RCT_EXTERN_MODULE');
+  });
+
+  it('serializes pending notification reads on the main queue', () => {
+    const pendingNotificationMethod = nativeMethod(
+      'func getPendingNotification(',
+      'func handleTrackingUrl('
+    );
+
+    expect(pendingNotificationMethod).toContain('DispatchQueue.main.async');
+    expect(pendingNotificationMethod).toContain(
+      'self.pendingNotification = nil'
+    );
+  });
+
+  it('retains a pending notification only when there is no active RN listener', () => {
+    expect(iosModule).toContain(
+      'ReactNativeEventEmitter.shared?.emitEvent(self.eventNotification, data: dict) == true'
+    );
+    expect(iosEmitter).toContain('startObserving()');
+    expect(iosEmitter).toContain('stopObserving()');
+    expect(iosEmitter).toContain('invalidate()');
   });
 });
 

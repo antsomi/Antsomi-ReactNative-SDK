@@ -1,7 +1,7 @@
 #import <React/RCTBridgeModule.h>
 #import <React/RCTEventEmitter.h>
 
-@interface RCT_EXTERN_REMAP_MODULE(AntsomiSDK, ReactNativeEventEmitter, RCTEventEmitter)
+@interface RCT_EXTERN_MODULE(ReactNativeEventEmitter, RCTEventEmitter)
 @end
 
 @interface RCT_EXTERN_MODULE(AntsomiSDK, NSObject)

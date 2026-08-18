@@ -11,17 +11,59 @@ import React
 
 @objc(ReactNativeEventEmitter)
 open class ReactNativeEventEmitter: RCTEventEmitter {
-    public static var shared: ReactNativeEventEmitter?
+    private static let sharedLock = NSLock()
+    private static weak var sharedInstance: ReactNativeEventEmitter?
+    private let listenerLock = NSLock()
+    private var hasListeners = false
+
+    public static var shared: ReactNativeEventEmitter? {
+        sharedLock.lock()
+        defer { sharedLock.unlock() }
+        return sharedInstance
+    }
     
     override init() {
         print("init event emitter")
         super.init()
-        ReactNativeEventEmitter.shared = self
+        ReactNativeEventEmitter.sharedLock.lock()
+        ReactNativeEventEmitter.sharedInstance = self
+        ReactNativeEventEmitter.sharedLock.unlock()
     }
     
+    @discardableResult
     @objc
-    func emitEvent(_ name: String, data: Any) {
+    func emitEvent(_ name: String, data: Any) -> Bool {
+        listenerLock.lock()
+        let canEmit = hasListeners
+        listenerLock.unlock()
+
+        guard canEmit else { return false }
         sendEvent(withName: name, body: data)
+        return true
+    }
+
+    override open func startObserving() {
+        listenerLock.lock()
+        hasListeners = true
+        listenerLock.unlock()
+    }
+
+    override open func stopObserving() {
+        listenerLock.lock()
+        hasListeners = false
+        listenerLock.unlock()
+    }
+
+    override open func invalidate() {
+        stopObserving()
+
+        ReactNativeEventEmitter.sharedLock.lock()
+        if ReactNativeEventEmitter.sharedInstance === self {
+            ReactNativeEventEmitter.sharedInstance = nil
+        }
+        ReactNativeEventEmitter.sharedLock.unlock()
+
+        super.invalidate()
     }
     
     @objc open override func supportedEvents() -> [String] {

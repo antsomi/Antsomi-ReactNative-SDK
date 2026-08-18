@@ -416,17 +416,20 @@ export default class RnAntsomiSdk {
   }
 
   static onOpenedNotification(callback: (info: any) => void) {
-    if (Platform.OS === 'ios') {
-      iosEventEmitter.addListener(OPENED_NOTIFICATION, (info: any) =>
-        callback(info)
-      );
-    } else {
-      eventEmitter.addListener(OPENED_NOTIFICATION, (info: any) =>
-        callback(info)
-      );
-    }
+    const eventEmitterForPlatform =
+      Platform.OS === 'ios' ? iosEventEmitter : eventEmitter;
+    const subscription = eventEmitterForPlatform.addListener(
+      OPENED_NOTIFICATION,
+      callback
+    );
 
-    RnAntsomiSdk.getPendingNotification();
+    RnAntsomiSdk.getPendingNotification().then((info) => {
+      if (info != null) {
+        callback(info);
+      }
+    });
+
+    return () => subscription.remove();
   }
 
   // ==================== GAMIFICATION APIs ====================

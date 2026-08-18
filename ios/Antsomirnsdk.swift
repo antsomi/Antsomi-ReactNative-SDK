@@ -50,13 +50,22 @@ class AntsomiSDK: NSObject, RCTBridgeModule {
                 ReactNativeEventEmitter.shared?.emitEvent(self.eventPendingLink, data: link)
             })
 
-            Antsomi.shared.setNotificationCallback { userInfo in
-                // Cache pending notification in case RN bridge not ready
-                if let dict = userInfo as? [String: Any] {
+            Antsomi.shared.setNotificationCallback { [weak self] userInfo in
+                let deliverNotification = { [weak self] in
+                    guard let self = self else { return }
+                    let dict = userInfo
+
+                    // Retain the payload until a live RN listener accepts it.
                     self.pendingNotification = dict
-                    ReactNativeEventEmitter.shared?.emitEvent(self.eventNotification, data: dict)
+                    if ReactNativeEventEmitter.shared?.emitEvent(self.eventNotification, data: dict) == true {
+                        self.pendingNotification = nil
+                    }
+                }
+
+                if Thread.isMainThread {
+                    deliverNotification()
                 } else {
-                    ReactNativeEventEmitter.shared?.emitEvent(self.eventNotification, data: [:])
+                    DispatchQueue.main.async(execute: deliverNotification)
                 }
             }
             
@@ -284,11 +293,13 @@ class AntsomiSDK: NSObject, RCTBridgeModule {
     @objc
     func getPendingNotification(_ resolve: @escaping RCTPromiseResolveBlock,
                                 rejecter reject: @escaping RCTPromiseRejectBlock) {
-        if let info = self.pendingNotification {
-            self.pendingNotification = nil
-            resolve(info)
-        } else {
-            resolve(nil)
+        DispatchQueue.main.async {
+            if let info = self.pendingNotification {
+                self.pendingNotification = nil
+                resolve(info)
+            } else {
+                resolve(nil)
+            }
         }
     }
   
